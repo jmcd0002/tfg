@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <!ELEMENT dataset (usuario*, votos*,batch_votos*)>
+        <!ELEMENT votos EMPTY>
+        <!ELEMENT usuario EMPTY>
+        <!ELEMENT batch_votos EMPTY>
+        <!ATTLIST usuario
+                nombre CDATA #IMPLIED
+                clave CDATA #IMPLIED
+                >
+        <!ATTLIST votos
+                id CDATA #IMPLIED
+                nombre CDATA #IMPLIED
+                usuario_nombre CDATA #IMPLIED
+                >
+        <!ATTLIST batch_votos
+                ID CDATA #IMPLIED
+                VOTOS CDATA #IMPLIED
+                PARTIDO CDATA #IMPLIED
+                >

@@ -1,0 +1,84 @@
+package jmcd.tfg.persistencia.crud;
+
+import javax.persistence.*;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+public abstract class EntityCRUD<T> {
+
+    private static String persistencia = "persistencia";
+
+    private static EntityManagerFactory entityManagerFactory;
+
+    abstract T getEntidadPorId(Object id);
+
+    abstract void borrarEntidad(Object id);
+
+    abstract List<T> executeSelectSQL(String conditions, String name);
+
+    abstract boolean update(T elemento);
+
+    abstract void create(T elemento);
+
+    abstract boolean createOrUpdate(T elemento);
+
+    protected Consumer persist = elemento -> dbTransactionalAction(EntityManager::persist, elemento);
+    protected Consumer borrado = id -> borrar(entityId ->dbTransactionalAction(EntityManager::remove, entityId),id);
+
+    private void borrar(Consumer<Object> accion, Object entidadId){
+        if(exists(entidadId)){
+            accion.accept(entidadId);
+        }
+    }
+
+    public boolean exists(Object id) {
+        return getEntidadPorId(id) != null;
+    }
+
+    protected static <S> void dbTransactionalAction(BiConsumer<EntityManager, S> action, S elemento) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction tx=entityManager.getTransaction();
+        try {
+            tx.begin();
+            action.accept(entityManager, elemento);
+            tx.commit();
+        }
+        catch (Exception e){
+            tx.rollback();
+        }
+        finally {
+            entityManager.close();
+        }
+    }
+
+    protected static <S> S dbConsult(Function<EntityManager, S> action) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        S solution=null;
+        try {
+            solution = action.apply(entityManager);
+        }
+        finally {
+            entityManager.close();
+        }
+        return solution;
+    }
+
+    public static void setPersistencia(String pers) {
+        persistencia = pers;
+    }
+
+    public static String getPersistencia() {
+        return persistencia;
+    }
+
+    public static void initPersistencia(){
+         entityManagerFactory = Persistence.createEntityManagerFactory(persistencia);
+    }
+
+    public static void closePersistencia(){
+        entityManagerFactory.close();
+    }
+
+}

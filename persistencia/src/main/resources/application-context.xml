@@ -1,0 +1,21 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+    <context:component-scan base-package="jmcd.tfg.persistencia.crud" />
+    <context:component-scan base-package="jmcd.tfg.persistencia.dao" />
+
+    <!-- <bean id="usuarioDAO" class="jmcd.tfg.persistencia.dao.UsuarioDAO"/>
+     <bean id="votosDAO" class="jmcd.tfg.persistencia.dao.VotosDAO"/>
+
+     <bean id="usuarioCRUD" class="jmcd.tfg.persistencia.crud.UsuarioCRUD"/>
+     <bean id="votosCRUD" class="jmcd.tfg.persistencia.crud.VotosCRUD"/>-->
+
+    <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+
+
+</beans>
