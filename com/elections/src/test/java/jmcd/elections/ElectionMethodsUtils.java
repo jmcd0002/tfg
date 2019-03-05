@@ -50,13 +50,13 @@ public final class ElectionMethodsUtils {
         return (n, rem, quotas)->applyMethodRemainder(method,rem,quotas,n);
     }
 
-    private static Stream<Method> getMethods(List<Class> clazzes, Test.Type remainder) {
+    private static Stream<Method> getMethods(List<Class> clazzes, Test.Type x) {
         return clazzes.stream()
                 .map(Class::getDeclaredMethods)
                 .flatMap(Stream::of)
                 .filter(m -> m.isAnnotationPresent(Test.class))
                 .filter(m -> m.getAnnotation(Test.class).toBeTested())
-                .filter(m -> m.getAnnotation(Test.class).type().equals(remainder));
+                .filter(m -> m.getAnnotation(Test.class).type().equals(x));
     }
 
     private static <T>  List<T> getMethods(Function<Method,T> function,List<Class> clazzes, Test.Type remainder ){

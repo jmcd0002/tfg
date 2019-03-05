@@ -4,21 +4,30 @@ import jmcd.utils.Pair;
 import jmcd.utils.comparators.RandomComparator;
 
 /**
- * Implementation of {@link jmcd.utils.Pair} where the key is the name of the political
- * party and its ordering is random.
+ * Implementación de {@link jmcd.utils.Pair} donde la clave es el nombre del partido político
+ * y están ordenados aleatoriamente.
  *
- * This is to choose a random winner when in tie.
+ * Este orden es utilizado para elegir un ganador aleatoriamente cuando en empate.
  * @param <S>
  */
 public class PartyListPair<S extends Comparable<S>> extends Pair<String,S> {
 
     private static RandomComparator<String> randomComparator;
 
+    /**
+     * Constructor del par
+     * @param st nombre del partido
+     * @param d valor asociado al partido
+     */
     public PartyListPair(String st, S d) {
         super(st, d,getOrCreateRandomComparator());
     }
 
-    public static RandomComparator<String> getOrCreateRandomComparator() {
+    /**
+     * Obtiene o crea un comparador aleatorio
+     * @return un comparador aleatorio
+     */
+    private static RandomComparator<String> getOrCreateRandomComparator() {
         if (randomComparator==null){
             randomComparator = new RandomComparator<>();
         }

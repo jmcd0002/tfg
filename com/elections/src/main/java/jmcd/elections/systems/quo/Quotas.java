@@ -11,29 +11,38 @@ import static jmcd.elections.systems.Test.Type.QUOTA;
 import static jmcd.elections.systems.Test.Type.REMAINDER;
 
 /**
- * This class is a library of quota methods of apportionment. There is a list of remainder apportionment, which start their names with 'remainders'
- * and a function that implements the quota apportionment. There is also a list of functions that compute quotas from the number of
- * seats and the number of votes.
+ * Esta clase es un librería de métodos de reparto por cuotas. Contiene una lista de métodos de reparto de restos y una función
+ * que implementa el método de reparto por cuotas. También hay una lista de funciones que computan cuotas diversas a partir
+ * del número de asientos y el número de votos.
  *
  * @author daconcep
+ * @author jmcd
  */
 public final class Quotas {
 
+    /**
+     * Constructor privado para impedir la instanciación de la clase
+     */
     private Quotas() {
     }
 
     /**
-     * @param votes: represents the votes given to each party involved.
-     * @param esc:   number of pieces to divide among the parties.
-     * @param mm:    method that distributes the remainder votes.
-     * @param quot:  quota function of the method
-     * @return map with seats distributed
+     * Método de reparto por cuotas
+     * @param votes: representa los votos dados a cada partido.
+     * @param esc:  número de escaños a dividir entre los partidos.
+     * @param mm:   método que distribuye los votos de los restos.
+     * @param quot:  cuota usada en el método
+     * @return {@link Map} con la distribución de escaños
      */
     public static <T> Map<T, Integer> methodQuota(Map<T, Integer> votes, int esc, Quota<T> quot, Remainder<T> mm) {
+        //Mapa auxiliar
         Map<T, Double> aux = new HashMap<>();
+        //Mapa resultado
         Map<T, Integer> res = new HashMap<>();
 
+        //cuota
         double d = quot.apply(votes, esc);
+
         votes.entrySet().stream()
                 .map(e -> Map.entry(e.getKey(),
                         Map.entry((int) Math.floor(e.getValue() / d), e.getValue() / d - (int) Math.floor(e.getValue() / d))))
@@ -47,9 +56,10 @@ public final class Quotas {
     }
 
     /**
-     * @param esc:  number of pieces to divide among the parties.
-     * @param dob:  remainders of the parties involved.
-     * @param mint: previous apportionment.
+     * Método de reparto de restos del resto mayor
+     * @param esc:  número de escaños a repartir entre los partidos.
+     * @param dob:  restos del método de cuotas.
+     * @param mint: reparto por la cuota.
      */
     @Test(type = REMAINDER)
     public static void remaindersLargestRemainder(int esc, Map<String, Double> dob, Map<String, Integer> mint) {
@@ -64,9 +74,10 @@ public final class Quotas {
 
 
     /**
-     * @param esc:  number of pieces to divide among the parties.
-     * @param dob:  remainders of the parties involved.
-     * @param mint: previous apportionment.
+     * Método de reparto del resto mayor relativo
+     * @param esc:  número de escaños a dividir entre los partidos.
+     * @param dob:  restos de los partidos involucrados
+     * @param mint: resultado del reparto por cuota
      */
     @Test(type = REMAINDER)
     public static void remaindersLargestRemainderRelative(int esc, Map<String, Double> dob, Map<String, Integer> mint) {
@@ -78,9 +89,10 @@ public final class Quotas {
 
 
     /**
-     * @param esc:  number of pieces to divide among the parties.
-     * @param dob:  remainders of the parties involved.
-     * @param mint: previous apportionment.
+     * Método de restos el ganador se lleva los restos
+     * @param esc:  número de escaños a repartir.
+     * @param dob:  restos de los partidos
+     * @param mint: resultado del reparto por cuota
      */
     @Test(type = REMAINDER)
     public static void remaindersWinnerAll(int esc, Map<String, Double> dob, Map<String, Integer> mint) {
@@ -92,9 +104,10 @@ public final class Quotas {
     }
 
     /**
-     * @param esc:   number of pieces to divide among the parties.
-     * @param votes: represents the votes given to each party involved.
-     * @return standard quota
+     * Cuota estándar
+     * @param esc:   número de escaños a dividir.
+     * @param votes: representa los votos de los partidos.
+     * @return cuota estándar
      */
     @Test(type = QUOTA)
     public static double quotaStandard(Map<String, Integer> votes, int esc) {
@@ -103,9 +116,10 @@ public final class Quotas {
     }
 
     /**
-     * @param esc:   number of pieces to divide among the parties.
-     * @param votes: represents the votes given to each party involved.
-     * @return droop quota
+     * Cuota droop
+     * @param esc:   número de escaños entre los partidos.
+     * @param votes: representa los votos de los partidos.
+     * @return cuota droop
      */
     @Test(type = QUOTA)
     public static double quotaDroop(Map<String, Integer> votes, int esc) {
