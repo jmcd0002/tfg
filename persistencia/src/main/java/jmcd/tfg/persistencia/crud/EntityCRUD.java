@@ -13,7 +13,20 @@ public abstract class EntityCRUD<T> {
 
     private static String persistencia = "persistencia";
 
+    abstract void create(T elemento);
+
+    abstract T getEntidadPorId(Object id);
+
+    abstract boolean update(T elemento);
+
+    abstract void borrarEntidad(Object id);
+
+    abstract boolean createOrUpdate(T elemento);
+
+    abstract List<T> executeSelectSQL(String conditions, String name);
+
     private static EntityManagerFactory entityManagerFactory;
+
     protected Consumer persist = elemento -> dbTransactionalAction(EntityManager::persist, elemento);
     protected Consumer borrado = id -> borrar(entityId -> dbTransactionalAction(EntityManager::remove, entityId), id);
 
@@ -57,18 +70,6 @@ public abstract class EntityCRUD<T> {
     public static void closePersistencia() {
         entityManagerFactory.close();
     }
-
-    abstract T getEntidadPorId(Object id);
-
-    abstract void borrarEntidad(Object id);
-
-    abstract List<T> executeSelectSQL(String conditions, String name);
-
-    abstract boolean update(T elemento);
-
-    abstract void create(T elemento);
-
-    abstract boolean createOrUpdate(T elemento);
 
     private void borrar(Consumer<Object> accion, Object entidadId) {
         if (exists(entidadId)) {

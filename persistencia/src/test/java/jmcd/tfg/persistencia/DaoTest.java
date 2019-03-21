@@ -5,7 +5,7 @@ import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.junit5.DBUnitExtension;
 import jmcd.tfg.persistencia.crud.EntityCRUD;
 import jmcd.tfg.persistencia.dao.UsuarioDAO;
-import jmcd.tfg.persistencia.dao.VotosDAO;
+import jmcd.tfg.persistencia.dao.VotacionDAO;
 import jmcd.tfg.persistencia.test.config.TestingConfig;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +37,7 @@ public class DaoTest {
     private UsuarioDAO usuarioDAO;
 
     @Autowired
-    private VotosDAO votosDAO;
+    private VotacionDAO votacionDAO;
 
     @BeforeAll
     public static void init() {
@@ -62,7 +62,7 @@ public class DaoTest {
  //       EntityCRUD.closePersistencia();
     }
 
-    @Test
+    //@Test
     public void crearUsuario() {
         LOG.info("Comprobando la funcion UsuarioDAO#crearUsuario");
         usuarioDAO.crearUsuario(josema, clave);

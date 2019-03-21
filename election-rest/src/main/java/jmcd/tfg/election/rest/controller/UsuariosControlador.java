@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 public class UsuariosControlador {
 
     @Autowired
-    UsuarioDAO usuarioDAO;
+    private UsuarioDAO usuarioDAO;
 
     @PostMapping
     public void registrar(@RequestBody Usuario usuario){

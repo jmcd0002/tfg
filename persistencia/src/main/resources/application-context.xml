@@ -10,12 +10,10 @@
     <context:component-scan base-package="jmcd.tfg.persistencia.dao" />
 
     <!-- <bean id="usuarioDAO" class="jmcd.tfg.persistencia.dao.UsuarioDAO"/>
-     <bean id="votosDAO" class="jmcd.tfg.persistencia.dao.VotosDAO"/>
+     <bean id="votosDAO" class="VotacionDAODAO"/>
 
      <bean id="usuarioCRUD" class="jmcd.tfg.persistencia.crud.UsuarioCRUD"/>
-     <bean id="votosCRUD" class="jmcd.tfg.persistencia.crud.VotosCRUD"/>-->
-
-    <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+     <bean id="votosCRUD" class="VotacionCRUDRUD"/>-->
 
 
 </beans>

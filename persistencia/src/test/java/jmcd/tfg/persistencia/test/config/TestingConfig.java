@@ -1,13 +1,11 @@
 package jmcd.tfg.persistencia.test.config;
 
 import jmcd.tfg.persistencia.crud.UsuarioCRUD;
-import jmcd.tfg.persistencia.crud.VotosCRUD;
+import jmcd.tfg.persistencia.crud.VotacionCRUD;
 import jmcd.tfg.persistencia.dao.UsuarioDAO;
-import jmcd.tfg.persistencia.dao.VotosDAO;
+import jmcd.tfg.persistencia.dao.VotacionDAO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.logging.Logger;
 
 @Configuration
 public class TestingConfig {
@@ -23,12 +21,12 @@ public class TestingConfig {
     }
 
     @Bean
-    public VotosDAO votosDAO(){
-        return new VotosDAO();
+    public VotacionDAO votosDAO(){
+        return new VotacionDAO();
     }
 
     @Bean
-    public VotosCRUD votosCRUD(){
-        return new VotosCRUD();
+    public VotacionCRUD votosCRUD(){
+        return new VotacionCRUD();
     }
 }
