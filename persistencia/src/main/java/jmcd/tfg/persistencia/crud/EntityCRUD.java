@@ -1,5 +1,9 @@
 package jmcd.tfg.persistencia.crud;
 
+import jmcd.tfg.persistencia.dao.UsuarioDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -11,7 +15,7 @@ import java.util.function.Function;
 
 public abstract class EntityCRUD<T> {
 
-    private static String persistencia = "persistencia";
+    private static final Logger LOG = LoggerFactory.getLogger(UsuarioDAO.class);
 
     abstract void create(T elemento);
 
@@ -25,34 +29,12 @@ public abstract class EntityCRUD<T> {
 
     abstract List<T> executeSelectSQL(String conditions, String name);
 
+    private static String persistencia = "persistencia";
+
     private static EntityManagerFactory entityManagerFactory;
 
-    protected Consumer persist = elemento -> dbTransactionalAction(EntityManager::persist, elemento);
-    protected Consumer borrado = id -> borrar(entityId -> dbTransactionalAction(EntityManager::remove, entityId), id);
-
-    protected static <S> void dbTransactionalAction(BiConsumer<EntityManager, S> action, S elemento) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction tx = entityManager.getTransaction();
-        try {
-            tx.begin();
-            action.accept(entityManager, elemento);
-            tx.commit();
-        } catch (Exception e) {
-            tx.rollback();
-        } finally {
-            entityManager.close();
-        }
-    }
-
-    protected static <S> S dbConsult(Function<EntityManager, S> action) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        S solution = null;
-        try {
-            solution = action.apply(entityManager);
-        } finally {
-            entityManager.close();
-        }
-        return solution;
+    public static void initPersistencia() {
+        entityManagerFactory = Persistence.createEntityManagerFactory(persistencia);
     }
 
     public static String getPersistencia() {
@@ -63,13 +45,28 @@ public abstract class EntityCRUD<T> {
         persistencia = pers;
     }
 
-    public static void initPersistencia() {
-        entityManagerFactory = Persistence.createEntityManagerFactory(persistencia);
-    }
-
     public static void closePersistencia() {
         entityManagerFactory.close();
     }
+
+    protected Consumer crear = elemento -> dbTransactionalAction(EntityManager::persist, elemento);
+
+    protected static <S> void dbTransactionalAction(BiConsumer<EntityManager, S> action, S elemento) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction tx = entityManager.getTransaction();
+        try {
+            tx.begin();
+            action.accept(entityManager, elemento);
+            tx.commit();
+        } catch (Exception e) {
+            LOG.error("Error en dbTransactionalAction: " + e.getMessage());
+            tx.rollback();
+        } finally {
+            entityManager.close();
+        }
+    }
+
+    protected Consumer borrar = id -> borrar(entityId -> dbTransactionalAction(EntityManager::remove, entityId), id);
 
     private void borrar(Consumer<Object> accion, Object entidadId) {
         if (exists(entidadId)) {
@@ -79,6 +76,19 @@ public abstract class EntityCRUD<T> {
 
     public boolean exists(Object id) {
         return getEntidadPorId(id) != null;
+    }
+
+    protected static <S> S dbConsult(Function<EntityManager, S> action) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        S solution = null;
+        try {
+            solution = action.apply(entityManager);
+        } catch (Exception e) {
+            LOG.error("Error en dbConsult: " + e.getMessage());
+        } finally {
+            entityManager.close();
+        }
+        return solution;
     }
 
 }

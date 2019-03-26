@@ -15,67 +15,99 @@ import java.security.NoSuchAlgorithmException;
 @Repository
 public class UsuarioDAO {
 
-    private static final Logger LOG= LoggerFactory.getLogger(UsuarioDAO.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UsuarioDAO.class);
 
     @Autowired
     private UsuarioCRUD usuarioCRUD;
 
-    public boolean existe(String nombre, String clave){
-        if (usuarioCRUD.exists(nombre)){
-            LOG.info(nombre+" existe");
-            Usuario usuarioBd=usuarioCRUD.getEntidadPorId(nombre);
-            try {
-                return encriptacionMD5(clave).equals(usuarioBd.getClave());
-                //TODO
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
-        }
-        else{
-            LOG.info(nombre+" no existe");
-        }
-        return false;
-    }
-
-    public void cambiarClave(String nombre,String clave){
-        try{
-            String hashtext = encriptacionMD5(clave);
-            Usuario nuevo=new Usuario();
-            nuevo.setNombre(nombre);
-            nuevo.setClave(hashtext);
-            usuarioCRUD.update(nuevo);
-            //TODO - especializa los try-catch de TODO EL PROYECTO, Josema :)
-        }catch (NoSuchAlgorithmException e){
-            e.printStackTrace();
-        }
-    }
-
-    public void crearUsuario(String nombre, String clave){
-        try{
-            String claveEncriptada=encriptacionMD5(clave);
-            Usuario usuario=new Usuario();
+    /**
+     * Crea un usuario
+     *
+     * @param nombre
+     * @param clave
+     */
+    public void crearUsuario(String nombre, String clave) {
+        try {
+            String claveEncriptada = encriptacionMD5(clave);
+            Usuario usuario = new Usuario();
             usuario.setNombre(nombre);
             usuario.setClave(claveEncriptada);
             LOG.info("Nombre usuario: " + usuario.getNombre() + "Clave" + usuario.getClave());
             usuarioCRUD.create(usuario);
             LOG.info("usuario insertado");
             //TODO
-        } catch (NoSuchAlgorithmException e){
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            LOG.error("Error al crear usuario" + e.getMessage());
         }
 
     }
 
-    public void borrarUsuario(String nombre){
-        usuarioCRUD.borrarEntidad(nombre);
+    /**
+     * Comprueba si un usuario existe
+     *
+     * @param nombre
+     * @param clave
+     * @return
+     */
+    public boolean existe(String nombre, String clave) {
+        if (usuarioCRUD.exists(nombre)) {
+            LOG.info(nombre + " existe");
+            Usuario usuarioBd = usuarioCRUD.getEntidadPorId(nombre);
+            try {
+                return encriptacionMD5(clave).equals(usuarioBd.getClave());
+                //TODO
+            } catch (NoSuchAlgorithmException e) {
+               LOG.error(e.getMessage());
+            }
+        } else {
+            LOG.info(nombre + " no existe");
+        }
+        return false;
     }
 
+    /**
+     * Actualiza la clave de un usuario
+     *
+     * @param nombre
+     * @param clave
+     */
+    public void cambiarClave(String nombre, String clave) {
+        try {
+            String hashtext = encriptacionMD5(clave);
+            Usuario nuevo = new Usuario();
+            nuevo.setNombre(nombre);
+            nuevo.setClave(hashtext);
+            usuarioCRUD.update(nuevo);
+            LOG.info("usuario " + nombre + " actuaizado");
+            //TODO
+        } catch (NoSuchAlgorithmException e) {
+            LOG.error("Error al cambiar la clave" + e.getMessage());
+        }
+    }
+
+    /**
+     * Borra un usuario dado su nombre
+     *
+     * @param nombre
+     */
+    public void borrarUsuario(String nombre) {
+        usuarioCRUD.borrarEntidad(nombre);
+        LOG.info("usuario " + nombre + " borrado");
+    }
+
+    /**
+     * Metodo de encriptado de la clave
+     *
+     * @param clave
+     * @return Devueve la clave encriptada
+     * @throws NoSuchAlgorithmException
+     */
     private String encriptacionMD5(String clave) throws NoSuchAlgorithmException {
         byte[] bytesOfMessage = clave.getBytes(StandardCharsets.UTF_8);
 
         MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] thedigest = md.digest(bytesOfMessage);
-        BigInteger bigInt = new BigInteger(1,thedigest);
+        BigInteger bigInt = new BigInteger(1, thedigest);
         return bigInt.toString(16);
     }
 }

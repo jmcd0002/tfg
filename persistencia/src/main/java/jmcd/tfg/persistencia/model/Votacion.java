@@ -4,27 +4,37 @@ import javax.persistence.*;
 import java.util.Map;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"nombre_votacion", "usuario_nombre"}))
 public class Votacion {
     @Id
-    private String id_votacion;
-    private String nombre_votacion;
+    @GeneratedValue
+    private String idVotacion;
+    private String nombreVotacion;
     @ManyToOne
     private Usuario usuario;
 
     @ElementCollection
-    @CollectionTable(name = "Partidos_Votos",
-            joinColumns = @JoinColumn(name = "Id_Partidos_Votos"))
-    @MapKeyColumn(name = "Partido")
-    @Column(name = "Votos")
+    @CollectionTable(name = "partidosVotos",
+            joinColumns = @JoinColumn(name = "idPartidosVotos"))
+    @MapKeyColumn(name = "partido")
+    @Column(name = "votos")
     private Map<String, Integer> mapPartidosVotos;
 
-    public String getId_votacion() {
-        return id_votacion;
+    public Votacion() {
     }
 
-    public void setId_votacion(String id) {
-        this.id_votacion = id;
+    public Votacion(String idVotacion, String nombreVotacion, Usuario usuario, Map<String, Integer> mapPartidosVotos) {
+        this.idVotacion = idVotacion;
+        this.nombreVotacion = nombreVotacion;
+        this.usuario = usuario;
+        this.mapPartidosVotos = mapPartidosVotos;
+    }
+
+    public String getIdVotacion() {
+        return idVotacion;
+    }
+
+    public void setIdVotacion(String idVotacion) {
+        this.idVotacion = idVotacion;
     }
 
     public Map<String, Integer> getMapPartidosVotos() {
@@ -35,12 +45,12 @@ public class Votacion {
         this.mapPartidosVotos = votos;
     }
 
-    public String getNombre_votacion() {
-        return nombre_votacion;
+    public String getNombreVotacion() {
+        return nombreVotacion;
     }
 
-    public void setNombre_votacion(String nombre) {
-        this.nombre_votacion = nombre;
+    public void setNombreVotacion(String nombreVotacion) {
+        this.nombreVotacion = nombreVotacion;
     }
 
     public Usuario getUsuario() {

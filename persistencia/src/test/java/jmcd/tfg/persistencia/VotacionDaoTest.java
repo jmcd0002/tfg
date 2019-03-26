@@ -1,7 +1,6 @@
 package jmcd.tfg.persistencia;
 
 import com.github.database.rider.core.api.connection.ConnectionHolder;
-import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.junit5.DBUnitExtension;
 import jmcd.tfg.persistencia.crud.EntityCRUD;
 import jmcd.tfg.persistencia.dao.UsuarioDAO;
@@ -24,12 +23,19 @@ import static com.github.database.rider.core.util.EntityManagerProvider.instance
 @ExtendWith(SpringExtension.class)
 @ExtendWith(DBUnitExtension.class)
 @ContextConfiguration(classes = TestingConfig.class, loader = AnnotationConfigContextLoader.class)
-public class DaoTest {
+public class VotacionDaoTest {
 
-    private static final Logger LOG= LoggerFactory.getLogger(DaoTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VotacionDaoTest.class);
 
-    private final String josema = "Josema";
-    private final String clave = "cucu";
+    private final String usuario1 = "juan";
+    private final String clave = "12345";
+
+    private final String usuario2 = "pepe";
+    private final String clave2 = "1234";
+
+    private final String votacion1 = "votacion1";
+    private final String votacion2 = "votacion2";
+
 
     private ConnectionHolder connectionHolder = () -> instance("testPersistencia").connection();
 
@@ -47,7 +53,7 @@ public class DaoTest {
     }
 
     @AfterAll
-    public static void close(){
+    public static void close() {
         LOG.info("Se acabaron los tests de las clases DAO");
         EntityCRUD.closePersistencia();
     }
@@ -55,32 +61,32 @@ public class DaoTest {
     @BeforeEach
     public void initTest() {
 //        EntityCRUD.initPersistencia();
+        usuarioDAO.crearUsuario(usuario1, clave);
     }
 
     @AfterEach
     public void closeTest() {
- //       EntityCRUD.closePersistencia();
+//        EntityCRUD.closePersistencia();
     }
 
-    //@Test
-    public void crearUsuario() {
-        LOG.info("Comprobando la funcion UsuarioDAO#crearUsuario");
-        usuarioDAO.crearUsuario(josema, clave);
-        Assertions.assertTrue(usuarioDAO.existe(josema, clave));
+    //    @Test
+    public void crearVotacion() {
+        LOG.info("Comprobando la funcion votacionDAO#crearVotacion");
+        votacionDAO.crearVotacion(votacion1, usuario1);
+        LOG.info("Votacion turutu: " + votacionDAO.getVotacion(votacion1, usuario1).getNombreVotacion());
+        Assertions.assertTrue(true);
     }
 
-  //  @Test
-    @DataSet(value = "datasets/xml/unusuario.xml")
-    public void existeUsuario() {
-        LOG.info("Comprobando la funcion UsuarioDAO#existe");
-        Assertions.assertTrue(usuarioDAO.existe(josema, clave));
+//    @Test
+    public void getVotacion() {
+        LOG.info("Comprobando la funcion votacionDAO#getVotacion");
+        Assertions.assertTrue(votacionDAO.getVotacion(votacion1, usuario1).getIdVotacion().equals("1"));
     }
 
-    @Test
-    @DataSet(value = "datasets/xml/unusuario.xml")
+    //    @Test
     public void borrarUsuario() {
         LOG.info("Comprobando la funcion UsuarioDAO#borrarUsuario");
-        usuarioDAO.borrarUsuario(josema);
-        Assertions.assertFalse(usuarioDAO.existe(josema,clave));
+//        usuarioDAO.borrarUsuario(pepe);
+//        Assertions.assertFalse(usuarioDAO.existe(pepe, clave2));
     }
 }

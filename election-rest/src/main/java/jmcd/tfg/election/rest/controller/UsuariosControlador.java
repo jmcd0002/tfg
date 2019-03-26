@@ -13,22 +13,23 @@ public class UsuariosControlador {
     private UsuarioDAO usuarioDAO;
 
     @PostMapping
-    public void registrar(@RequestBody Usuario usuario){
-        usuarioDAO.crearUsuario(usuario.getNombre(),usuario.getClave());
+    public void registrar(@RequestBody Usuario usuario) {
+        usuarioDAO.crearUsuario(usuario.getNombre(), usuario.getClave());
+    }
+
+
+    @PostMapping("/{nombre}")
+    public Usuario get(@PathVariable String nombre, @RequestParam String clave) {
+        return usuarioDAO.existe(nombre, clave) ? new Usuario(nombre, clave) : null;
     }
 
     @PutMapping
-    public void cambiarClave(@RequestBody Usuario usuario, @RequestParam String clave){
-        usuarioDAO.cambiarClave(usuario.getNombre(),clave);
-    }
-
-    @PostMapping("/{nombre}")
-    public Usuario get(@PathVariable String nombre, @RequestParam String clave){
-        return usuarioDAO.existe(nombre,clave)?new Usuario(nombre,clave):null;
+    public void cambiarClave(@RequestBody Usuario usuario, @RequestParam String clave) {
+        usuarioDAO.cambiarClave(usuario.getNombre(), clave);
     }
 
     @DeleteMapping
-    public void borrar(@RequestBody Usuario usuario){
+    public void borrar(@RequestBody Usuario usuario) {
         usuarioDAO.borrarUsuario(usuario.getNombre());
     }
 
