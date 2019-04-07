@@ -4,6 +4,7 @@ import jmcd.tfg.persistencia.crud.UsuarioCRUD;
 import jmcd.tfg.persistencia.crud.VotacionCRUD;
 import jmcd.tfg.persistencia.excepcion.PartidoExiste;
 import jmcd.tfg.persistencia.excepcion.PartidoNoExiste;
+import jmcd.tfg.persistencia.excepcion.VotacionNoExiste;
 import jmcd.tfg.persistencia.model.Votacion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Repository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Repository
 public class VotacionDAO {
@@ -31,13 +31,14 @@ public class VotacionDAO {
      * @param nombreVotacion nombre de la votacion
      * @param usuario        nombre del usuario al que pertenece la votacion
      */
-    public void crearVotacion(String nombreVotacion, String usuario) {
+    public Votacion crearVotacion(String nombreVotacion, String usuario) {
         Votacion nuevo = new Votacion();
         nuevo.setNombreVotacion(nombreVotacion);
         nuevo.setUsuario(usuarioCRUD.getEntidadPorId(usuario));
         nuevo.setMapPartidosVotos(new HashMap<>());
         votacionCRUD.create(nuevo);
         LOG.info("Creada Votacion: " + nuevo.getIdVotacion() + ", " + nuevo.getNombreVotacion() + ", " + nuevo.getUsuario());
+        return nuevo;
     }
 
     /**
@@ -46,127 +47,131 @@ public class VotacionDAO {
      * @param usuario nombre del usuario
      * @return lista con las votaciones que ha introducido un usuario
      */
-    public List<String> getListaVotaciones(String usuario) {
-        return votacionCRUD.executeSelectSQL("v.usuario.nombre = " + usuario, "v")
-                .stream()
-                .map(Votacion::getNombreVotacion)
-                .collect(Collectors.toList());
+    public List<Votacion> getListaVotaciones(String usuario) {
+        return votacionCRUD.executeSelectSQL("v.usuario.nombre = '" + usuario + "'", "v");
     }
 
     /**
      * Metodo que obtiene una votacion de un usuario
      *
-     * @param nombre  nombre de la votacion
-     * @param usuario nombre del usuario al que pertenece la votacion
+     * @param idVotacion id de la votacion
+     * @return
      */
-    public Votacion getVotacion(String nombre, String usuario) {
-        return votacionCRUD.getEntidadPorId(getIdDesdeNombreUsuario(nombre, usuario));
+    public Votacion getVotacion(int idVotacion) {
+        return votacionCRUD.getEntidadPorId(idVotacion);
+//        LOG.info("El id de la votacion " + v.getNombreVotacion() + " es: " + v.getIdVotacion());
     }
 
     /**
      * Metodo que borra una votacion
      *
-     * @param nombre  nombre de la votacion
-     * @param usuario nombre del usuario al que pertenece la votacion
+     * @param idVotacion nombre de la votacion
      */
-    public void borrarVotacion(String nombre, String usuario) {
-        votacionCRUD.borrarEntidad(getIdDesdeNombreUsuario(nombre, usuario));
+    public void borrarVotacion(int idVotacion) {
+        votacionCRUD.borrarEntidad(idVotacion);
+        LOG.info("Votacion borrada");
     }
 
     /**
      * Metodo que añade un partido y sus respectivos votos
      *
-     * @param nombre  nombre de la votacion
-     * @param usuario nombre del usuario al que pertenece la votacion
-     * @param partido nombre del partido
-     * @param votos   numero de votos
+     * @param idVotacion id de la votacion
+     * @param partido    nombre del partido
+     * @param votos      numero de votos
      */
-    public void anadirPartidoVotos(String nombre, String usuario, String partido, int votos) {
-        Map<String, Integer> mapPartidosVotos = getPartidosVotos(nombre, usuario);
-        Integer anterior = mapPartidosVotos.putIfAbsent(partido, votos);
-        if (anterior != null) {
+    public void anadirPartidoVotos(int idVotacion, String partido, int votos) {
+        Votacion votacion = getVotacion(idVotacion);
+        Map<String, Integer> mapPartidosVotos = votacion.getMapPartidosVotos();
+        Integer existe = mapPartidosVotos.putIfAbsent(partido, votos);
+        if (existe != null) {
             throw new PartidoExiste(partido);
         }
-        Votacion nuevo = new Votacion(
-                getIdDesdeNombreUsuario(nombre, usuario),
-                nombre,
-                usuarioCRUD.getEntidadPorId(usuario),
-                mapPartidosVotos);
-        votacionCRUD.update(nuevo);
+        votacion.setMapPartidosVotos(mapPartidosVotos);
+        votacionCRUD.update(votacion);
     }
 
     /**
      * Metodo que obtiene todos los partidos y sus respectivos votos
      *
-     * @param nombreVotacion  nombre de la votacion
-     * @param usuario nombre del usuario de la votacion
+     * @param idVotacion nombre de la votacion
      * @return mapa de votos de la votacion
      */
-    public Map<String, Integer> getPartidosVotos(String nombreVotacion, String usuario) {
-        return votacionCRUD.executeSelectSQL("v.usuario.nombre = " + usuario + " and v.nombre = " + nombreVotacion, "v")
-                .stream()
-                .findFirst()
-                .map(Votacion::getMapPartidosVotos)
-                .orElseGet(HashMap::new);
+    public Map<String, Integer> getPartidosVotos(int idVotacion) {
+        return getVotacion(idVotacion).getMapPartidosVotos();
     }
 
     /**
      * Metodo que modifica un partido y sus respectivos votos
      *
-     * @param nombreVotacion  nombre de la votacion
-     * @param usuario nombre del usuario al que pertenece la votacion
-     * @param partido nombre del partido
-     * @param votos   numero de votos
+     * @param idVotacion id de la votacion
+     * @param partido    nombre del partido
+     * @param votos      numero de votos
      */
-    public void modificarPartidoVotos(String nombreVotacion, String usuario, String partido, int votos) {
-        Map<String, Integer> mapPartidosVotos = getPartidosVotos(nombreVotacion, usuario);
+    public void modificarPartidoVotos(int idVotacion, String partido, int votos) {
+        Votacion votacion = getVotacion(idVotacion);
+        Map<String, Integer> mapPartidosVotos = votacion.getMapPartidosVotos();
         if (mapPartidosVotos.containsKey(partido)) {
             mapPartidosVotos.put(partido, votos);
         } else {
             throw new IllegalArgumentException("El partido " + partido + " no está en la lista");
         }
-        Votacion nuevo = new Votacion(
-                getIdDesdeNombreUsuario(nombreVotacion, usuario),
-                nombreVotacion,
-                usuarioCRUD.getEntidadPorId(usuario),
-                mapPartidosVotos);
-        votacionCRUD.update(nuevo);
+        votacion.setMapPartidosVotos(mapPartidosVotos);
+        votacionCRUD.update(votacion);
     }
 
     /**
      * Metodo que borra un partido y sus respectivos votos
      *
-     * @param nombreVotacion  nombre de la votacion
-     * @param usuario nombre del usuario al que pertenece la votacion
-     * @param partido nombre del partido
+     * @param idVotacion nombre de la votacion
+     * @param partido    nombre del partido
      */
-    public void borrarPartidoVotos(String nombreVotacion, String usuario, String partido) {
-        Map<String, Integer> mapPartidosVotos = getPartidosVotos(nombreVotacion, usuario);
+    public void borrarPartidoVotos(int idVotacion, String partido) {
+        Votacion votacion = getVotacion(idVotacion);
+        Map<String, Integer> mapPartidosVotos = votacion.getMapPartidosVotos();
         Integer valor = mapPartidosVotos.remove(partido);
         if (valor == null) {
             throw new PartidoNoExiste(partido);
         }
-        Votacion nuevo = new Votacion(
-                getIdDesdeNombreUsuario(nombreVotacion, usuario),
-                nombreVotacion,
-                usuarioCRUD.getEntidadPorId(usuario),
-                mapPartidosVotos);
-        votacionCRUD.update(nuevo);
+        votacion.setMapPartidosVotos(mapPartidosVotos);
+        votacionCRUD.update(votacion);
     }
 
     /**
      * Devueve el id de la votacion dado su nombre y el nombre del usuario al que pertenece
      *
-     * @param nombreVotacion  nombre de la votacion
-     * @param usuario nombre del usuario de la votacion
+     * @param nombreVotacion nombre de la votacion
+     * @param usuario        nombre del usuario de la votacion
      * @return id de la votacion
      */
-    private String getIdDesdeNombreUsuario(String nombreVotacion, String usuario) {
-        return votacionCRUD.executeSelectSQL("v.usuario.nombre = " + usuario + " and v.nombre = " + nombreVotacion, "v")
+    public Integer getIdDesdeNombreUsuario(String nombreVotacion, String usuario) {
+        return votacionCRUD.executeSelectSQL("v.nombreVotacion = '" + nombreVotacion + "' and v.usuario.nombre = '" + usuario + "'", "v")
                 .stream()
                 .findFirst()
                 .map(Votacion::getIdVotacion)
-                .orElseGet(String::new);
-    }
+                .orElseThrow(() -> new VotacionNoExiste(nombreVotacion));
 
+// SEGUNDA VERSION
+//        List<Votacion> votaciones = getListaVotaciones(usuario);
+//        for (Votacion v : votaciones) {
+//            if (v.getNombreVotacion().equals(nombreVotacion)) {
+//                LOG.info("El id de la votacion " + v.getNombreVotacion() + " es: " + v.getIdVotacion());
+//                return v.getIdVotacion();
+//            } else {
+//                throw new VotacionNoExiste(nombreVotacion);
+//            }
+//        }
+//        return null;
+
+// TERCERA VERSION (FUNCIONA)
+//        LOG.info("Voy a llamar a executeSelectSQL");
+//        List<Votacion> resutado = votacionCRUD.executeSelectSQL("v.nombreVotacion = '" + nombreVotacion + "' and v.usuario.nombre = '" + usuario + "'", "v");
+//        if (resutado.size() == 1) {
+//            LOG.info("El id de la votacion tarara" + resutado.get(0).getNombreVotacion() + " es: " + resutado.get(0).getIdVotacion());
+//            return resutado.get(0).getIdVotacion();
+//        } else {
+//            LOG.info("Error en getIdDesdeNombreUsuario");
+////            throw new VotacionNoExiste(nombreVotacion);
+//        }
+//        return null;
+    }
 }

@@ -1,9 +1,13 @@
 package jmcd.tfg.election.rest.controller;
 
-import jmcd.tfg.election.rest.pojo.Usuario;
+import jmcd.tfg.election.rest.Utils.UsuarioPopulate;
+import jmcd.tfg.election.rest.pojo.UsuarioPojo;
 import jmcd.tfg.persistencia.dao.UsuarioDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/usuario")
@@ -11,26 +15,44 @@ public class UsuariosControlador {
 
     @Autowired
     private UsuarioDAO usuarioDAO;
+    @Autowired
+    private UsuarioPopulate usuarioPopulate;
+    protected static final Logger LOG = LoggerFactory.getLogger(UsuariosControlador.class);
 
     @PostMapping
-    public void registrar(@RequestBody Usuario usuario) {
-        usuarioDAO.crearUsuario(usuario.getNombre(), usuario.getClave());
+    public void registrar(@RequestBody UsuarioPojo usuarioPojo) {
+        usuarioDAO.crearUsuario(usuarioPojo.getNombre(), usuarioPojo.getClave());
     }
 
-
-    @PostMapping("/{nombre}")
-    public Usuario get(@PathVariable String nombre, @RequestParam String clave) {
-        return usuarioDAO.existe(nombre, clave) ? new Usuario(nombre, clave) : null;
+    @GetMapping("/{nombreUsuario}")
+    public UsuarioPojo get(@PathVariable String nombreUsuario, @RequestParam String clave) {
+        UsuarioPojo usuarioPojo = new UsuarioPojo();
+        usuarioPopulate.populate(usuarioDAO.obtenerUsuario(nombreUsuario), usuarioPojo);
+        if (clave.equals(usuarioPojo.getClave())) {
+            return usuarioPojo;
+        }
+        return new UsuarioPojo();
     }
 
-    @PutMapping
-    public void cambiarClave(@RequestBody Usuario usuario, @RequestParam String clave) {
-        usuarioDAO.cambiarClave(usuario.getNombre(), clave);
+//    @GetMapping("/{nombreUsuario}")
+//    public UsuarioPojo login(@PathVariable String nombreUsuario, @RequestParam String clave) {
+//        UsuarioPojo usuarioPojo = new UsuarioPojo();
+//        if (usuarioDAO.existe(nombreUsuario, clave)) {
+//            usuarioPojo.setNombre(nombreUsuario);
+//            usuarioPojo.setClave(clave);
+//            usuarioPopulate.populate(usuarioDAO.obtenerUsuario(nombreUsuario), usuarioPojo);
+//        }
+//        return usuarioPojo;
+//    }
+
+    @PutMapping("/{nombre}")
+    public void cambiarClave(@PathVariable String nombre, @RequestParam String clave) {
+        usuarioDAO.cambiarClave(nombre, clave);
     }
 
-    @DeleteMapping
-    public void borrar(@RequestBody Usuario usuario) {
-        usuarioDAO.borrarUsuario(usuario.getNombre());
+    @DeleteMapping("/{usuario}")
+    public void borrar(@PathVariable String usuario) {
+        usuarioDAO.borrarUsuario(usuario);
     }
 
 }

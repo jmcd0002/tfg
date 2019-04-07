@@ -64,7 +64,17 @@ public class UsuarioDAO {
         }
         return false;
     }
+    /**
+     * Comprueba si un usuario existe
+     *
+     * @param nombre
 
+     * @return
+     */
+    public Usuario obtenerUsuario(String nombre) {
+            return usuarioCRUD.getEntidadPorId(nombre);
+
+    }
     /**
      * Actualiza la clave de un usuario
      *

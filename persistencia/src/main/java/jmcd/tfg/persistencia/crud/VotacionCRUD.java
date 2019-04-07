@@ -3,37 +3,83 @@ package jmcd.tfg.persistencia.crud;
 import jmcd.tfg.persistencia.model.Votacion;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import java.util.List;
-import java.util.logging.Logger;
 
 @Component
 public class VotacionCRUD extends EntityCRUD<Votacion> {
 
     @Override
     public void create(Votacion elemento) {
-        Logger.getAnonymousLogger().info("Persistiendo " + elemento.getIdVotacion() + " con nombre de votacion " + elemento.getNombreVotacion());
-        crear.accept(elemento);
-        Logger.getAnonymousLogger().info("Persistiendo " + elemento.getIdVotacion() + " con nombre de votacion  " + elemento.getNombreVotacion());
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            em.persist(elemento);
+            tx.commit();
+            LOG.info("Creada votacion " + elemento.getNombreVotacion() + " con id " + elemento.getIdVotacion());
+        } catch (Exception e) {
+            LOG.error("Error al crear votacion: " + e.getMessage());
+            tx.rollback();
+        } finally {
+            em.close();
+        }
     }
 
     @Override
-    public Votacion getEntidadPorId(Object id) {
-        return dbConsult(entityManager -> entityManager.find(Votacion.class, id));
+    public Votacion getEntidadPorId(Object idVotacion) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            Votacion votacion = em.find(Votacion.class, idVotacion);
+            LOG.info("Encontrada votacion " + votacion.getNombreVotacion() + " con id " + votacion.getIdVotacion());
+            return votacion;
+        } catch (Exception e) {
+            LOG.error("Error al buscar votacion: " + e.getMessage());
+        } finally {
+            em.close();
+        }
+        return null;
     }
 
     @Override
     public boolean update(Votacion elemento) {
         Votacion original = getEntidadPorId(elemento.getIdVotacion());
-        if (!comprobarCamposCambiados(original, elemento)) {
-            Logger.getAnonymousLogger().info("Actualizando " + original.getIdVotacion() + " con nombre de votacion  " + original.getNombreVotacion());
-            dbTransactionalAction(((entityManager, o) -> {
-                original.setNombreVotacion(elemento.getNombreVotacion());
-                original.setMapPartidosVotos(elemento.getMapPartidosVotos());
-            }), null);
-            Logger.getAnonymousLogger().info("Actualizado " + elemento.getIdVotacion() + " con nombre de votacion  " + elemento.getNombreVotacion());
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            Votacion votacion = em.find(Votacion.class, elemento.getNombreVotacion());
+            tx.begin();
+            votacion.setNombreVotacion(elemento.getNombreVotacion());
+            votacion.setMapPartidosVotos(elemento.getMapPartidosVotos());
+            tx.commit();
+            LOG.info("Votacion actualizada " + elemento.getNombreVotacion() + " con id " + elemento.getIdVotacion());
             return true;
+        } catch (Exception e) {
+            LOG.error("Error al actualizar votacion: " + e.getMessage());
+            tx.rollback();
+            return false;
+        } finally {
+            em.close();
         }
-        return false;
+    }
+
+    @Override
+    public void borrarEntidad(Object id) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            Votacion votacion = em.find(Votacion.class, id);
+            tx.begin();
+            em.remove(votacion);
+            tx.commit();
+            LOG.info("Borrada votacion" + votacion.getNombreVotacion() + " con clave " + votacion.getIdVotacion());
+        } catch (Exception e) {
+            LOG.error("Error al borrar votacion: " + e.getMessage());
+            tx.rollback();
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -46,19 +92,13 @@ public class VotacionCRUD extends EntityCRUD<Votacion> {
         }
     }
 
-    @Override
-    public void borrarEntidad(Object id) {
-        Logger.getAnonymousLogger().info("Borrando ");
-        borrar.accept(getEntidadPorId(id));
-        Logger.getAnonymousLogger().info("Borrando ");
-    }
+//    private boolean comprobarCamposCambiados(Votacion original, Votacion nuevo) {
+//        return original.getNombreVotacion().equals(nuevo.getNombreVotacion()) && original.getMapPartidosVotos().equals(nuevo.getMapPartidosVotos());
+//    }
 
     @Override
-    public List<Votacion> executeSelectSQL(String conditions, String name) {
-        return dbConsult(entityManager -> entityManager.createQuery("Select " + name + " from Votacion " + name + " where " + conditions).getResultList());
+    public List<Votacion> executeSelectSQL(String condiciones, String alias) {
+        return dbConsult(entityManager -> entityManager.createQuery("Select " + alias + " from Votacion " + alias + " where " + condiciones).getResultList());
     }
 
-    private boolean comprobarCamposCambiados(Votacion original, Votacion nuevo) {
-        return original.getNombreVotacion().equals(nuevo.getNombreVotacion()) && original.getMapPartidosVotos().equals(nuevo.getMapPartidosVotos());
-    }
 }

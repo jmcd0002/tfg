@@ -77,8 +77,8 @@ public class UsuarioDaoTest {
     @Test
     public void cambiarClave() {
         LOG.info("Comprobando la funcion UsuarioDAO#cambiarClave");
-        usuarioDAO.cambiarClave(juan, clave2);
-        Assertions.assertTrue(usuarioDAO.existe(juan, clave2));
+        usuarioDAO.cambiarClave(pepe, clave);
+        Assertions.assertTrue(usuarioDAO.existe(pepe, clave));
     }
 
     @Test

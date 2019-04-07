@@ -7,7 +7,7 @@ import java.util.Map;
 public class Votacion {
     @Id
     @GeneratedValue
-    private String idVotacion;
+    private int idVotacion;
     private String nombreVotacion;
     @ManyToOne
     private Usuario usuario;
@@ -22,18 +22,18 @@ public class Votacion {
     public Votacion() {
     }
 
-    public Votacion(String idVotacion, String nombreVotacion, Usuario usuario, Map<String, Integer> mapPartidosVotos) {
+    public Votacion(int idVotacion, String nombreVotacion, Usuario usuario, Map<String, Integer> mapPartidosVotos) {
         this.idVotacion = idVotacion;
         this.nombreVotacion = nombreVotacion;
         this.usuario = usuario;
         this.mapPartidosVotos = mapPartidosVotos;
     }
 
-    public String getIdVotacion() {
+    public int getIdVotacion() {
         return idVotacion;
     }
 
-    public void setIdVotacion(String idVotacion) {
+    public void setIdVotacion(int idVotacion) {
         this.idVotacion = idVotacion;
     }
 

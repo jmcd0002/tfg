@@ -1,11 +1,13 @@
 package jmcd.tfg.election.rest.controller;
 
+import jmcd.tfg.election.rest.Utils.UsuarioPopulate;
+import jmcd.tfg.election.rest.Utils.VotacionPopulate;
+import jmcd.tfg.election.rest.pojo.VotacionPojo;
 import jmcd.tfg.persistencia.dao.VotacionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/votacion")
@@ -13,47 +15,53 @@ public class VotacionControlador {
 
     @Autowired
     private VotacionDAO votacionDAO;
+    @Autowired
+    UsuarioPopulate usuarioPopulate;
+    @Autowired
+    VotacionPopulate votacionPopulate;
 
     @PostMapping("/{usuario}/{nombreVotacion}")
     public void crearVotacion(@PathVariable String nombreVotacion, @PathVariable String usuario) {
         votacionDAO.crearVotacion(nombreVotacion, usuario);
     }
-//
+
+    @GetMapping("/{idVotacion}")
+    public VotacionPojo getVotacion(@PathVariable int idVotacion) {
+        VotacionPojo votacion = new VotacionPojo();
+        votacionPopulate.populate(votacionDAO.getVotacion(idVotacion), votacion);
+        return votacion;
+    }
+
 //    @PostMapping("/{usuario}")
-//    public List<String> getListaVotaciones(String usuario) {
-//        return votacionDAO.getListaVotaciones(usuario);
-//    }
+//    public List<VotacionPojo> getListaVotaciones(@PathVariable String usuario) {
+//        votacionDAO.getListaVotaciones(usuario);
 //
-//    @PostMapping
-//    public Votacion getVotacion(String nombreVotacion, String usuario) {
-//        votacionDAO.getVotacion(nombreVotacion, usuario);
-//        Votacion votacion = null;
-//        return votacion;
+//        return;
 //    }
 //
 //    @PostMapping("/{usuario}/{nombreVotacion}")
-//    public void borrarVotacion(String nombreVotacion, String usuario) {
-//        votacionDAO.borrarVotacion(nombreVotacion, usuario);
+//    public void borrarVotacion(@PathVariable String usuario,@PathVariable int idVotacion) {
+//        votacionDAO.borrarVotacion(idVotacion);
 //    }
 //
 //    @PostMapping
-//    public void anadirPartidoVotos(String nombreVotacion, String usuario, String partido, int votos) {
-//        votacionDAO.anadirPartidoVotos(nombreVotacion, usuario, partido, votos);
+//    public void anadirPartidoVotos(int idVotacion, String partido, int votos) {
+//        votacionDAO.anadirPartidoVotos(idVotacion, partido, votos);
 //    }
 //
 //    @PostMapping
-//    public Map<String, Integer> getPartidosVotos(String nombreVotacion, String usuario) {
-//        return votacionDAO.getPartidosVotos(nombreVotacion, usuario);
+//    public Map<String, Integer> getPartidosVotos(int idVotacion) {
+//        return votacionDAO.getPartidosVotos(idVotacion);
 //    }
 //
 //    @PostMapping
-//    public void modificarPartidoVotos(String nombreVotacion, String usuario, String partido, int votos) {
-//        votacionDAO.modificarPartidoVotos(nombreVotacion, usuario, partido, votos);
+//    public void modificarPartidoVotos(int idVotacion, String partido, int votos) {
+//        votacionDAO.modificarPartidoVotos(idVotacion, partido, votos);
 //    }
 //
 //    @PostMapping
-//    public void borrarPartidoVotos(String nombreVotacion, String usuario, String partido) {
-//        votacionDAO.borrarPartidoVotos(nombreVotacion, usuario, partido);
+//    public void borrarPartidoVotos(int idVotacion, String partido) {
+//        votacionDAO.borrarPartidoVotos(idVotacion, partido);
 //    }
 
 

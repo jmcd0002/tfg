@@ -5,6 +5,7 @@ import com.github.database.rider.junit5.DBUnitExtension;
 import jmcd.tfg.persistencia.crud.EntityCRUD;
 import jmcd.tfg.persistencia.dao.UsuarioDAO;
 import jmcd.tfg.persistencia.dao.VotacionDAO;
+import jmcd.tfg.persistencia.model.Votacion;
 import jmcd.tfg.persistencia.test.config.TestingConfig;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,33 +61,53 @@ public class VotacionDaoTest {
 
     @BeforeEach
     public void initTest() {
-//        EntityCRUD.initPersistencia();
-        usuarioDAO.crearUsuario(usuario1, clave);
+
+        if (!usuarioDAO.existe(usuario1, clave)) {
+            usuarioDAO.crearUsuario(usuario1, clave);
+        }
+        if (!usuarioDAO.existe(usuario2, clave2)) {
+            usuarioDAO.crearUsuario(usuario2, clave2);
+        }
+//        if (votacionDAO.getIdDesdeNombreUsuario(votacion2, usuario2) != null) {
+        votacionDAO.crearVotacion(votacion2, usuario2);
+//        }
     }
 
     @AfterEach
     public void closeTest() {
-//        EntityCRUD.closePersistencia();
+//        if (votacionDAO.getIdDesdeNombreUsuario(votacion2, usuario2) != null) {
+        votacionDAO.borrarVotacion(votacionDAO.getIdDesdeNombreUsuario(votacion2, usuario2));
+//        }
+        if (usuarioDAO.existe(usuario2, clave2)) {
+            usuarioDAO.borrarUsuario(usuario2);
+        }
+        if (usuarioDAO.existe(usuario1, clave)) {
+            usuarioDAO.borrarUsuario(usuario1);
+        }
     }
 
-    //    @Test
+    @Test
     public void crearVotacion() {
         LOG.info("Comprobando la funcion votacionDAO#crearVotacion");
-        votacionDAO.crearVotacion(votacion1, usuario1);
-        LOG.info("Votacion turutu: " + votacionDAO.getVotacion(votacion1, usuario1).getNombreVotacion());
-        Assertions.assertTrue(true);
+        Votacion votacion = votacionDAO.crearVotacion(votacion1, usuario1);
+        int id = votacionDAO.getIdDesdeNombreUsuario(votacion1, usuario1);
+        Assertions.assertTrue(votacion.getIdVotacion() == id);
+    }
+
+    @Test
+    public void getVotacion() {
+        LOG.info("Comprobando la funcion votacionDAO#getVotacion");
+        int id = votacionDAO.getIdDesdeNombreUsuario(votacion2, usuario2);
+        Votacion votacion = votacionDAO.getVotacion(id);
+        Assertions.assertTrue(votacion.getNombreVotacion().equals(votacion2));
     }
 
 //    @Test
-    public void getVotacion() {
-        LOG.info("Comprobando la funcion votacionDAO#getVotacion");
-        Assertions.assertTrue(votacionDAO.getVotacion(votacion1, usuario1).getIdVotacion().equals("1"));
-    }
-
-    //    @Test
-    public void borrarUsuario() {
-        LOG.info("Comprobando la funcion UsuarioDAO#borrarUsuario");
-//        usuarioDAO.borrarUsuario(pepe);
-//        Assertions.assertFalse(usuarioDAO.existe(pepe, clave2));
-    }
+//    public void borrarVotacion() {
+//        LOG.info("Comprobando la funcion UsuarioDAO#borrarUsuario");
+//        int id = votacionDAO.getIdDesdeNombreUsuario(votacion2, usuario2);
+//        votacionDAO.borrarVotacion(id);
+////        Assertions.assert(votacionDAO.getVotacion(id) == null);
+//        Assertions.assertTrue(votacionDAO.getVotacion(id) == null);
+//    }
 }

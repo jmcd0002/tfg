@@ -6,16 +6,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class EntityCRUD<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UsuarioDAO.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(UsuarioDAO.class);
 
     abstract void create(T elemento);
 
@@ -27,11 +24,9 @@ public abstract class EntityCRUD<T> {
 
     abstract boolean createOrUpdate(T elemento);
 
-    abstract List<T> executeSelectSQL(String conditions, String name);
-
     private static String persistencia = "persistencia";
 
-    private static EntityManagerFactory entityManagerFactory;
+    protected static EntityManagerFactory entityManagerFactory;
 
     public static void initPersistencia() {
         entityManagerFactory = Persistence.createEntityManagerFactory(persistencia);
@@ -49,34 +44,11 @@ public abstract class EntityCRUD<T> {
         entityManagerFactory.close();
     }
 
-    protected Consumer crear = elemento -> dbTransactionalAction(EntityManager::persist, elemento);
-
-    protected static <S> void dbTransactionalAction(BiConsumer<EntityManager, S> action, S elemento) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction tx = entityManager.getTransaction();
-        try {
-            tx.begin();
-            action.accept(entityManager, elemento);
-            tx.commit();
-        } catch (Exception e) {
-            LOG.error("Error en dbTransactionalAction: " + e.getMessage());
-            tx.rollback();
-        } finally {
-            entityManager.close();
-        }
-    }
-
-    protected Consumer borrar = id -> borrar(entityId -> dbTransactionalAction(EntityManager::remove, entityId), id);
-
-    private void borrar(Consumer<Object> accion, Object entidadId) {
-        if (exists(entidadId)) {
-            accion.accept(entidadId);
-        }
-    }
-
     public boolean exists(Object id) {
         return getEntidadPorId(id) != null;
     }
+
+    abstract List<T> executeSelectSQL(String condiciones, String alias);
 
     protected static <S> S dbConsult(Function<EntityManager, S> action) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -90,5 +62,30 @@ public abstract class EntityCRUD<T> {
         }
         return solution;
     }
+
+//    protected Consumer crear = elemento -> dbTransactionalAction(EntityManager::persist, elemento);
+//
+//    protected static <S> void dbTransactionalAction(BiConsumer<EntityManager, S> action, S elemento) {
+//        EntityManager entityManager = entityManagerFactory.createEntityManager();
+//        EntityTransaction tx = entityManager.getTransaction();
+//        try {
+//            tx.begin();
+//            action.accept(entityManager, elemento);
+//            tx.commit();
+//        } catch (Exception e) {
+//            LOG.error("Error en dbTransactionalAction: " + e.getMessage());
+//            tx.rollback();
+//        } finally {
+//            entityManager.close();
+//        }
+//    }
+//
+//    protected Consumer borrar = id -> borrar(entityId -> dbTransactionalAction(EntityManager::remove, entityId), id);
+//
+//    private void borrar(Consumer<Object> accion, Object entidadId) {
+//        if (exists(entidadId)) {
+//            accion.accept(entidadId);
+//        }
+//    }
 
 }

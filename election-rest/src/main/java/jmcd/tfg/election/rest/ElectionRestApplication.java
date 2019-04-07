@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"jmcd.tfg.election.rest.controller","jmcd.tfg.persistencia.dao","jmcd.tfg.persistencia.crud"})
+@ComponentScan(basePackages = {"jmcd.tfg.election.rest.controller", "jmcd.tfg.persistencia.dao", "jmcd.tfg.persistencia.crud", "jmcd.tfg.election.rest.Utils"})
 public class ElectionRestApplication {
 
     public static void main(String[] args) {
