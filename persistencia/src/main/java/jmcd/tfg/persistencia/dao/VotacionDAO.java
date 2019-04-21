@@ -6,6 +6,8 @@ import jmcd.tfg.persistencia.excepcion.PartidoExiste;
 import jmcd.tfg.persistencia.excepcion.PartidoNoExiste;
 import jmcd.tfg.persistencia.excepcion.VotacionNoExiste;
 import jmcd.tfg.persistencia.model.Votacion;
+import jmcd.tfg.persistencia.pojo.VotacionPojo;
+import jmcd.tfg.persistencia.utils.VotacionPopulate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 public class VotacionDAO {
@@ -22,6 +25,8 @@ public class VotacionDAO {
     private VotacionCRUD votacionCRUD;
     @Autowired
     private UsuarioCRUD usuarioCRUD;
+    @Autowired
+    private VotacionPopulate votacionPopulate;
 
     private static final Logger LOG = LoggerFactory.getLogger(UsuarioDAO.class);
 
@@ -31,14 +36,14 @@ public class VotacionDAO {
      * @param nombreVotacion nombre de la votacion
      * @param usuario        nombre del usuario al que pertenece la votacion
      */
-    public Votacion crearVotacion(String nombreVotacion, String usuario) {
+    public VotacionPojo crearVotacion(String nombreVotacion, String usuario) {
         Votacion nuevo = new Votacion();
         nuevo.setNombreVotacion(nombreVotacion);
         nuevo.setUsuario(usuarioCRUD.getEntidadPorId(usuario));
         nuevo.setMapPartidosVotos(new HashMap<>());
         votacionCRUD.create(nuevo);
         LOG.info("Creada Votacion: " + nuevo.getIdVotacion() + ", " + nuevo.getNombreVotacion() + ", " + nuevo.getUsuario());
-        return nuevo;
+        return votacionPopulate.populate(nuevo);
     }
 
     /**
@@ -47,8 +52,11 @@ public class VotacionDAO {
      * @param usuario nombre del usuario
      * @return lista con las votaciones que ha introducido un usuario
      */
-    public List<Votacion> getListaVotaciones(String usuario) {
-        return votacionCRUD.executeSelectSQL("v.usuario.nombre = '" + usuario + "'", "v");
+    public List<VotacionPojo> getListaVotaciones(String usuario) {
+        return votacionCRUD.executeSelectSQL("v.usuario.nombre = '" + usuario + "'", "v")
+                .stream()
+                .map(votacionPopulate::populate)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -57,8 +65,8 @@ public class VotacionDAO {
      * @param idVotacion id de la votacion
      * @return
      */
-    public Votacion getVotacion(int idVotacion) {
-        return votacionCRUD.getEntidadPorId(idVotacion);
+    public VotacionPojo getVotacion(int idVotacion) {
+        return votacionPopulate.populate(votacionCRUD.getEntidadPorId(idVotacion));
 //        LOG.info("El id de la votacion " + v.getNombreVotacion() + " es: " + v.getIdVotacion());
     }
 
@@ -80,7 +88,7 @@ public class VotacionDAO {
      * @param votos      numero de votos
      */
     public void anadirPartidoVotos(int idVotacion, String partido, int votos) {
-        Votacion votacion = getVotacion(idVotacion);
+        Votacion votacion = votacionCRUD.getEntidadPorId(idVotacion);
         Map<String, Integer> mapPartidosVotos = votacion.getMapPartidosVotos();
         Integer existe = mapPartidosVotos.putIfAbsent(partido, votos);
         if (existe != null) {
@@ -88,6 +96,7 @@ public class VotacionDAO {
         }
         votacion.setMapPartidosVotos(mapPartidosVotos);
         votacionCRUD.update(votacion);
+        LOG.info("Añadido partido: " + partido + " con votos: " + votos);
     }
 
     /**
@@ -97,6 +106,7 @@ public class VotacionDAO {
      * @return mapa de votos de la votacion
      */
     public Map<String, Integer> getPartidosVotos(int idVotacion) {
+        LOG.info("Obteniendo todos los partidos de la votacion con id: " + idVotacion);
         return getVotacion(idVotacion).getMapPartidosVotos();
     }
 
@@ -108,7 +118,7 @@ public class VotacionDAO {
      * @param votos      numero de votos
      */
     public void modificarPartidoVotos(int idVotacion, String partido, int votos) {
-        Votacion votacion = getVotacion(idVotacion);
+        Votacion votacion = votacionCRUD.getEntidadPorId(idVotacion);
         Map<String, Integer> mapPartidosVotos = votacion.getMapPartidosVotos();
         if (mapPartidosVotos.containsKey(partido)) {
             mapPartidosVotos.put(partido, votos);
@@ -117,6 +127,7 @@ public class VotacionDAO {
         }
         votacion.setMapPartidosVotos(mapPartidosVotos);
         votacionCRUD.update(votacion);
+        LOG.info("Modificado el partido: " + partido + " con los nuevso votos: " + votos);
     }
 
     /**
@@ -126,7 +137,7 @@ public class VotacionDAO {
      * @param partido    nombre del partido
      */
     public void borrarPartidoVotos(int idVotacion, String partido) {
-        Votacion votacion = getVotacion(idVotacion);
+        Votacion votacion = votacionCRUD.getEntidadPorId(idVotacion);
         Map<String, Integer> mapPartidosVotos = votacion.getMapPartidosVotos();
         Integer valor = mapPartidosVotos.remove(partido);
         if (valor == null) {
@@ -134,6 +145,7 @@ public class VotacionDAO {
         }
         votacion.setMapPartidosVotos(mapPartidosVotos);
         votacionCRUD.update(votacion);
+        LOG.info("Borrado partido: " + partido);
     }
 
     /**

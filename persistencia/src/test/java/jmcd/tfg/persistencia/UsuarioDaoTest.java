@@ -26,11 +26,11 @@ public class UsuarioDaoTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(UsuarioDaoTest.class);
 
-    private final String juan = "juan";
-    private final String clave = "12345";
+    private final String usuarioCrear = "usuarioCrear";
+    private final String claveCrear = "12345";
 
-    private final String pepe = "pepe";
-    private final String clave2 = "1234";
+    private final String usuarioModificaciones = "usuarioModificaciones";
+    private final String claveModificaciones = "1234";
 
     private ConnectionHolder connectionHolder = () -> instance("testPersistencia").connection();
 
@@ -39,7 +39,7 @@ public class UsuarioDaoTest {
 
     @BeforeAll
     public static void init() {
-        LOG.info("Iniciando los tests de las clases DAO");
+        LOG.info("Iniciando los tests de la clase UsuarioDAO");
         EntityCRUD.setPersistencia("testPersistencia");
         EntityCRUD.initPersistencia();
     }
@@ -52,40 +52,38 @@ public class UsuarioDaoTest {
 
     @BeforeEach
     public void initTest() {
-        usuarioDAO.crearUsuario(pepe, clave2);
+        usuarioDAO.crearUsuario(usuarioModificaciones, claveModificaciones);
     }
 
     @AfterEach
     public void closeTest() {
-        usuarioDAO.borrarUsuario(pepe);
+        usuarioDAO.borrarUsuario(usuarioModificaciones);
     }
 
     @Test
     public void crearUsuario() {
         LOG.info("Comprobando la funcion UsuarioDAO#crearUsuario");
-        usuarioDAO.crearUsuario(juan, clave);
-        Assertions.assertTrue(usuarioDAO.existe(juan, clave));
+        usuarioDAO.crearUsuario(usuarioCrear, claveCrear);
+        Assertions.assertTrue(usuarioDAO.existe(usuarioCrear, claveCrear));
     }
 
     @Test
-//    @DataSet(value = "datasets/xml/unusuario.xml")
     public void existeUsuario() {
         LOG.info("Comprobando la funcion UsuarioDAO#existe");
-        Assertions.assertTrue(usuarioDAO.existe(pepe, clave2));
+        Assertions.assertTrue(usuarioDAO.existe(usuarioModificaciones, claveModificaciones));
     }
 
     @Test
     public void cambiarClave() {
         LOG.info("Comprobando la funcion UsuarioDAO#cambiarClave");
-        usuarioDAO.cambiarClave(pepe, clave);
-        Assertions.assertTrue(usuarioDAO.existe(pepe, clave));
+        usuarioDAO.cambiarClave(usuarioModificaciones, claveCrear);
+        Assertions.assertTrue(usuarioDAO.existe(usuarioModificaciones, claveCrear));
     }
 
     @Test
-//    @DataSet(value = "datasets/xml/unusuario.xml")
     public void borrarUsuario() {
         LOG.info("Comprobando la funcion UsuarioDAO#borrarUsuario");
-        usuarioDAO.borrarUsuario(pepe);
-        Assertions.assertFalse(usuarioDAO.existe(pepe, clave2));
+        usuarioDAO.borrarUsuario(usuarioModificaciones);
+        Assertions.assertFalse(usuarioDAO.existe(usuarioModificaciones, claveModificaciones));
     }
 }

@@ -48,7 +48,7 @@ public class VotacionCRUD extends EntityCRUD<Votacion> {
         EntityManager em = entityManagerFactory.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
-            Votacion votacion = em.find(Votacion.class, elemento.getNombreVotacion());
+            Votacion votacion = em.find(Votacion.class, elemento.getIdVotacion());
             tx.begin();
             votacion.setNombreVotacion(elemento.getNombreVotacion());
             votacion.setMapPartidosVotos(elemento.getMapPartidosVotos());

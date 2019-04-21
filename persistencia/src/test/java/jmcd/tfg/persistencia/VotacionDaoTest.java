@@ -5,7 +5,7 @@ import com.github.database.rider.junit5.DBUnitExtension;
 import jmcd.tfg.persistencia.crud.EntityCRUD;
 import jmcd.tfg.persistencia.dao.UsuarioDAO;
 import jmcd.tfg.persistencia.dao.VotacionDAO;
-import jmcd.tfg.persistencia.model.Votacion;
+import jmcd.tfg.persistencia.pojo.VotacionPojo;
 import jmcd.tfg.persistencia.test.config.TestingConfig;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
+import java.util.Map;
 
 import static com.github.database.rider.core.util.EntityManagerProvider.instance;
 
@@ -28,14 +30,20 @@ public class VotacionDaoTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(VotacionDaoTest.class);
 
-    private final String usuario1 = "juan";
-    private final String clave = "12345";
+    private final String usuarioCrear = "usuarioCrear";
+    private final String claveCrear = "12345";
 
-    private final String usuario2 = "pepe";
-    private final String clave2 = "1234";
+    private final String usuarioModificaciones = "usuarioModificaciones";
+    private final String claveModificaciones = "1234";
 
-    private final String votacion1 = "votacion1";
-    private final String votacion2 = "votacion2";
+    private final String votacionCrear = "votacionCrear";
+    private final String votacionModificaciones = "votacionModificaciones";
+
+    private final String partidoCrear = "partidoCrear";
+    private final int votosCrear = 10;
+
+    private final String partidoModificaciones = "partidoModificaciones";
+    private final int votosModificaciones = 20;
 
 
     private ConnectionHolder connectionHolder = () -> instance("testPersistencia").connection();
@@ -48,7 +56,7 @@ public class VotacionDaoTest {
 
     @BeforeAll
     public static void init() {
-        LOG.info("Iniciando los tests de las clases DAO");
+        LOG.info("Iniciando los tests de la clase VotacionDAO");
         EntityCRUD.setPersistencia("testPersistencia");
         EntityCRUD.initPersistencia();
     }
@@ -61,53 +69,79 @@ public class VotacionDaoTest {
 
     @BeforeEach
     public void initTest() {
-
-        if (!usuarioDAO.existe(usuario1, clave)) {
-            usuarioDAO.crearUsuario(usuario1, clave);
-        }
-        if (!usuarioDAO.existe(usuario2, clave2)) {
-            usuarioDAO.crearUsuario(usuario2, clave2);
-        }
-//        if (votacionDAO.getIdDesdeNombreUsuario(votacion2, usuario2) != null) {
-        votacionDAO.crearVotacion(votacion2, usuario2);
-//        }
+        usuarioDAO.crearUsuario(usuarioCrear, claveCrear);
+        usuarioDAO.crearUsuario(usuarioModificaciones, claveModificaciones);
+        int idVotacionModificaciones = votacionDAO.crearVotacion(votacionModificaciones, usuarioModificaciones).getIdVotacion();
+        votacionDAO.anadirPartidoVotos(idVotacionModificaciones, partidoModificaciones, votosModificaciones);
     }
 
     @AfterEach
     public void closeTest() {
-//        if (votacionDAO.getIdDesdeNombreUsuario(votacion2, usuario2) != null) {
-        votacionDAO.borrarVotacion(votacionDAO.getIdDesdeNombreUsuario(votacion2, usuario2));
-//        }
-        if (usuarioDAO.existe(usuario2, clave2)) {
-            usuarioDAO.borrarUsuario(usuario2);
-        }
-        if (usuarioDAO.existe(usuario1, clave)) {
-            usuarioDAO.borrarUsuario(usuario1);
-        }
+        votacionDAO.borrarVotacion(votacionDAO.getIdDesdeNombreUsuario(votacionModificaciones, usuarioModificaciones));
+        usuarioDAO.borrarUsuario(usuarioModificaciones);
+        usuarioDAO.borrarUsuario(usuarioCrear);
     }
 
     @Test
     public void crearVotacion() {
         LOG.info("Comprobando la funcion votacionDAO#crearVotacion");
-        Votacion votacion = votacionDAO.crearVotacion(votacion1, usuario1);
-        int id = votacionDAO.getIdDesdeNombreUsuario(votacion1, usuario1);
-        Assertions.assertTrue(votacion.getIdVotacion() == id);
+        VotacionPojo votacionPojo = votacionDAO.crearVotacion(votacionCrear, usuarioCrear);
+        int id = votacionDAO.getIdDesdeNombreUsuario(votacionCrear, usuarioCrear);
+        Assertions.assertTrue(votacionPojo.getIdVotacion() == id);
     }
 
     @Test
     public void getVotacion() {
         LOG.info("Comprobando la funcion votacionDAO#getVotacion");
-        int id = votacionDAO.getIdDesdeNombreUsuario(votacion2, usuario2);
-        Votacion votacion = votacionDAO.getVotacion(id);
-        Assertions.assertTrue(votacion.getNombreVotacion().equals(votacion2));
+        int id = votacionDAO.getIdDesdeNombreUsuario(votacionModificaciones, usuarioModificaciones);
+        VotacionPojo votacionPojo = votacionDAO.getVotacion(id);
+        Assertions.assertTrue(votacionPojo.getNombreVotacion().equals(votacionModificaciones));
     }
 
-//    @Test
-//    public void borrarVotacion() {
-//        LOG.info("Comprobando la funcion UsuarioDAO#borrarUsuario");
-//        int id = votacionDAO.getIdDesdeNombreUsuario(votacion2, usuario2);
-//        votacionDAO.borrarVotacion(id);
-////        Assertions.assert(votacionDAO.getVotacion(id) == null);
-//        Assertions.assertTrue(votacionDAO.getVotacion(id) == null);
-//    }
+    //    @Test
+    public void borrarVotacion() {
+        LOG.info("Comprobando la funcion votacionDAO#borrarUsuario");
+        int id = votacionDAO.getIdDesdeNombreUsuario(votacionModificaciones, usuarioModificaciones);
+        votacionDAO.borrarVotacion(id);
+//        Assertions.assert(votacionDAO.getVotacion(id) == null);
+        Assertions.assertTrue(votacionDAO.getVotacion(id) == null);
+    }
+
+    @Test
+    public void anadirPartidoVotos() {
+        LOG.info("Comprobando la funcion votacionDAO#anadirPartidoVotos");
+        int idVotacionModificaciones = votacionDAO.getIdDesdeNombreUsuario(votacionModificaciones, usuarioModificaciones);
+        votacionDAO.anadirPartidoVotos(idVotacionModificaciones, partidoCrear, votosCrear);
+        Assertions.assertTrue(
+                votacionDAO.getPartidosVotos(idVotacionModificaciones).get(partidoCrear)
+                        == votosCrear);
+    }
+
+    @Test
+    public void getPartidosVotos() {
+        LOG.info("Comprobando la funcion votacionDAO#getPartidosVotos");
+        int idVotacionModificaciones = votacionDAO.getIdDesdeNombreUsuario(votacionModificaciones, usuarioModificaciones);
+        Map<String, Integer> mapaPartidosVotos = votacionDAO.getPartidosVotos(idVotacionModificaciones);
+        Assertions.assertTrue(mapaPartidosVotos.containsKey(partidoModificaciones));
+        Assertions.assertTrue(mapaPartidosVotos.containsValue(votosModificaciones));
+    }
+
+    @Test
+    public void modificarPartidoVotos() {
+        LOG.info("Comprobando la funcion votacionDAO#modificarPartidoVotos");
+        int idVotacionModificaciones = votacionDAO.getIdDesdeNombreUsuario(votacionModificaciones, usuarioModificaciones);
+        votacionDAO.modificarPartidoVotos(idVotacionModificaciones, partidoModificaciones, votosCrear);
+        Assertions.assertTrue(
+                votacionDAO.getPartidosVotos(idVotacionModificaciones).get(partidoModificaciones)
+                        == votosCrear);
+    }
+
+    @Test
+    public void borrarPartidoVotos() {
+        LOG.info("Comprobando la funcion votacionDAO#borrarPartidoVotos");
+        int idVotacionModificaciones = votacionDAO.getIdDesdeNombreUsuario(votacionModificaciones, usuarioModificaciones);
+        votacionDAO.borrarPartidoVotos(idVotacionModificaciones, partidoModificaciones);
+        Assertions.assertNull(votacionDAO.getPartidosVotos(idVotacionModificaciones).get(partidoModificaciones));
+    }
+
 }

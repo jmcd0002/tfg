@@ -1,6 +1,7 @@
 package jmcd.tfg.persistencia.model;
 
 import javax.persistence.*;
+import java.util.HashMap;
 import java.util.Map;
 
 @Entity
@@ -12,7 +13,7 @@ public class Votacion {
     @ManyToOne
     private Usuario usuario;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "partidosVotos",
             joinColumns = @JoinColumn(name = "idPartidosVotos"))
     @MapKeyColumn(name = "partido")
@@ -20,6 +21,7 @@ public class Votacion {
     private Map<String, Integer> mapPartidosVotos;
 
     public Votacion() {
+        this.mapPartidosVotos = new HashMap<>();
     }
 
     public Votacion(int idVotacion, String nombreVotacion, Usuario usuario, Map<String, Integer> mapPartidosVotos) {

@@ -2,6 +2,8 @@ package jmcd.tfg.persistencia.dao;
 
 import jmcd.tfg.persistencia.crud.UsuarioCRUD;
 import jmcd.tfg.persistencia.model.Usuario;
+import jmcd.tfg.persistencia.pojo.UsuarioPojo;
+import jmcd.tfg.persistencia.utils.UsuarioPopulate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class UsuarioDAO {
 
     @Autowired
     private UsuarioCRUD usuarioCRUD;
+
+    @Autowired
+    private UsuarioPopulate usuarioPopulate;
 
     /**
      * Crea un usuario
@@ -57,24 +62,28 @@ public class UsuarioDAO {
                 return encriptacionMD5(clave).equals(usuarioBd.getClave());
                 //TODO
             } catch (NoSuchAlgorithmException e) {
-               LOG.error(e.getMessage());
+                LOG.error(e.getMessage());
             }
         } else {
             LOG.info(nombre + " no existe");
         }
         return false;
     }
+
     /**
-     * Comprueba si un usuario existe
+     * Obtiene un usuario
      *
      * @param nombre
-
      * @return
      */
-    public Usuario obtenerUsuario(String nombre) {
-            return usuarioCRUD.getEntidadPorId(nombre);
-
+    public UsuarioPojo getUsuario(String nombre) {
+        Usuario usuario = usuarioCRUD.getEntidadPorId(nombre);
+        if (usuario != null) {
+            LOG.info("Obteniendo usuario: " + usuario.getNombre() + " con clave: " + usuario.getClave());
+        }
+        return usuarioPopulate.populate(usuario);
     }
+
     /**
      * Actualiza la clave de un usuario
      *
@@ -83,12 +92,11 @@ public class UsuarioDAO {
      */
     public void cambiarClave(String nombre, String clave) {
         try {
+            Usuario usuario = usuarioCRUD.getEntidadPorId(nombre);
             String hashtext = encriptacionMD5(clave);
-            Usuario nuevo = new Usuario();
-            nuevo.setNombre(nombre);
-            nuevo.setClave(hashtext);
-            usuarioCRUD.update(nuevo);
-            LOG.info("usuario " + nombre + " actuaizado");
+            usuario.setClave(hashtext);
+            usuarioCRUD.update(usuario);
+            LOG.info("Actualizado usuario: " + usuario.getNombre() + " con nueva clave: " + usuario.getClave());
             //TODO
         } catch (NoSuchAlgorithmException e) {
             LOG.error("Error al cambiar la clave" + e.getMessage());

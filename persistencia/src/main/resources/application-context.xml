@@ -8,6 +8,7 @@
 
     <context:component-scan base-package="jmcd.tfg.persistencia.crud" />
     <context:component-scan base-package="jmcd.tfg.persistencia.dao" />
+    <context:component-scan base-package="jmcd.tfg.persistencia.utils" />
 
     <!-- <bean id="usuarioDAO" class="jmcd.tfg.persistencia.dao.UsuarioDAO"/>
      <bean id="votosDAO" class="VotacionDAODAO"/>

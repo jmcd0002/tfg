@@ -8,7 +8,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ComponentScan(basePackages = {"jmcd.tfg.election.rest.controller", "jmcd.tfg.persistencia.dao", "jmcd.tfg.persistencia.crud", "jmcd.tfg.election.rest.Utils"})
+@ComponentScan(basePackages = {"jmcd.tfg.election.rest.controller", "jmcd.tfg.persistencia.dao", "jmcd.tfg.persistencia.crud", "jmcd.tfg.persistencia.utils"})
 public class ElectionRestApplicationTests {
 
     @Test
