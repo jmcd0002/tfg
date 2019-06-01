@@ -14,7 +14,7 @@ public class TestingConfig {
 
     @Bean
     public UsuarioDAO usuarioDAO() {
-        return new UsuarioDAO();
+        return new UsuarioDAO(usuarioPopulate(),usuarioCRUD());
     }
 
     @Bean
@@ -24,7 +24,7 @@ public class TestingConfig {
 
     @Bean
     public VotacionDAO votacionDAO() {
-        return new VotacionDAO();
+        return new VotacionDAO(votacionCRUD(),usuarioCRUD(),votacionPopulate());
     }
 
     @Bean
@@ -39,7 +39,7 @@ public class TestingConfig {
 
     @Bean
     public VotacionPopulate votacionPopulate() {
-        return new VotacionPopulate();
+        return new VotacionPopulate(usuarioPopulate());
     }
 
 }

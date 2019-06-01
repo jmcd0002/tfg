@@ -10,7 +10,6 @@ import jmcd.tfg.persistencia.pojo.VotacionPojo;
 import jmcd.tfg.persistencia.utils.VotacionPopulate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -21,11 +20,16 @@ import java.util.stream.Collectors;
 @Repository
 public class VotacionDAO {
 
-    @Autowired
+    public VotacionDAO(VotacionCRUD votacionCRUD,UsuarioCRUD usuarioCRUD,VotacionPopulate votacionPopulate){
+        this.votacionPopulate=votacionPopulate;
+        this.votacionCRUD=votacionCRUD;
+        this.usuarioCRUD=usuarioCRUD;
+    }
+
     private VotacionCRUD votacionCRUD;
-    @Autowired
+
     private UsuarioCRUD usuarioCRUD;
-    @Autowired
+
     private VotacionPopulate votacionPopulate;
 
     private static final Logger LOG = LoggerFactory.getLogger(UsuarioDAO.class);
@@ -42,7 +46,8 @@ public class VotacionDAO {
         nuevo.setUsuario(usuarioCRUD.getEntidadPorId(usuario));
         nuevo.setMapPartidosVotos(new HashMap<>());
         votacionCRUD.create(nuevo);
-        LOG.info("Creada Votacion: " + nuevo.getIdVotacion() + ", " + nuevo.getNombreVotacion() + ", " + nuevo.getUsuario());
+        String mensaje= String.format("Creada Votacion: %s, %s, %s", nuevo.getIdVotacion(), nuevo.getNombreVotacion(), nuevo.getUsuario());
+        LOG.info(mensaje);
         return votacionPopulate.populate(nuevo);
     }
 
@@ -106,7 +111,8 @@ public class VotacionDAO {
      * @return mapa de votos de la votacion
      */
     public Map<String, Integer> getPartidosVotos(int idVotacion) {
-        LOG.info("Obteniendo todos los partidos de la votacion con id: " + idVotacion);
+        String mensaje=String.format("Obteniendo todos los partidos de la votacion con id: %s",idVotacion);
+        LOG.info(mensaje);
         return getVotacion(idVotacion).getMapPartidosVotos();
     }
 

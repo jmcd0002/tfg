@@ -6,7 +6,6 @@ import jmcd.tfg.persistencia.pojo.UsuarioPojo;
 import jmcd.tfg.persistencia.utils.UsuarioPopulate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
@@ -19,10 +18,13 @@ public class UsuarioDAO {
 
     private static final Logger LOG = LoggerFactory.getLogger(UsuarioDAO.class);
 
-    @Autowired
+    public UsuarioDAO(UsuarioPopulate usuarioPopulate, UsuarioCRUD usuarioCRUD){
+        this.usuarioCRUD=usuarioCRUD;
+        this.usuarioPopulate=usuarioPopulate;
+    }
+
     private UsuarioCRUD usuarioCRUD;
 
-    @Autowired
     private UsuarioPopulate usuarioPopulate;
 
     /**

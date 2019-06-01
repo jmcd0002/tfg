@@ -7,6 +7,8 @@ import jmcd.tfg.persistencia.crud.EntityCRUD;
  */
 public class PersistenciaUtils {
 
+    private PersistenciaUtils(){}
+
     public static void initPersistencia() {
         EntityCRUD.initPersistencia();
     }

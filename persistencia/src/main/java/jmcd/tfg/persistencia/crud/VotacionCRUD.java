@@ -44,7 +44,6 @@ public class VotacionCRUD extends EntityCRUD<Votacion> {
 
     @Override
     public boolean update(Votacion elemento) {
-        Votacion original = getEntidadPorId(elemento.getIdVotacion());
         EntityManager em = entityManagerFactory.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {

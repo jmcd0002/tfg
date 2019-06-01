@@ -8,4 +8,6 @@ module election.rest {
     requires spring.boot;
     requires commons.lang;
     requires slf4j.api;
+    requires elections;
+
 }
