@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/usuario")
 public class UsuariosControlador {
 
@@ -25,8 +26,9 @@ public class UsuariosControlador {
     }
 
     @PostMapping("/{nombreUsuario}")
-    public UsuarioPojo get(@PathVariable String nombreUsuario, @RequestParam String clave) {
-        return (clave.equals(usuarioDAO.getUsuario(nombreUsuario).getClave()))
+    public UsuarioPojo login(@PathVariable String nombreUsuario, @RequestBody UsuarioPojo usuarioPojo) {
+//        return (usuarioDAO.existe(usuarioPojo.getNombre(), usuarioPojo.getClave()))
+        return (usuarioPojo.getClave().equals(usuarioDAO.getUsuario(usuarioPojo.getNombre()).getClave()))
                 ? usuarioDAO.getUsuario(nombreUsuario)
                 : new UsuarioPojo();
     }
