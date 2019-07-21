@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE dataset SYSTEM "dataset.dtd">
 <dataset>
-    <usuario nombre="Pepe" clave="487427b0c082fbada24b1afd1880136b"/>
-    <!-- clave="cucu" -->
-    <usuario nombre="Oscar" clave="bdb8c008fa551ba75f8481963f2201da"/>
-    <!-- clave="tutu" -->
+    <usuario nombre="juan" clave="827ccb0eea8a706c4c34a16891f84e7b"/>
+    <!-- clave="12345" -->
 
-    <votos id="1" nombre="Elecciones 2014" usuario_nombre="Pepe"/>
-    <votos id="2" nombre="Elecciones 2018" usuario_nombre="Oscar"/>
+    <votacion idVotacion="1" nombreVotacion="Elecciones 2014" usuario_nombre="Pepe"/>
+    <votacion idVotacion="2" nombreVotacion="Elecciones 2018" usuario_nombre="Oscar"/>
 
-    <batch_votos ID="1" PARTIDO="PP" VOTOS="2000"/>
-    <batch_votos ID="1" PARTIDO="PSOE" VOTOS="1000"/>
-    <batch_votos ID="2" PARTIDO="PP" VOTOS="200"/>
-    <batch_votos ID="2" PARTIDO="PSOE" VOTOS="500"/>
-    <batch_votos ID="2" PARTIDO="PACMA" VOTOS="1"/>
+    <partidosVotos idPartidosVotos="1" partido="PP" votos="2000"/>
+    <partidosVotos idPartidosVotos="1" partido="PSOE" votos="1000"/>
+    <partidosVotos idPartidosVotos="2" partido="PP" votos="200"/>
+    <partidosVotos idPartidosVotos="2" partido="PSOE" votos="500"/>
+    <partidosVotos idPartidosVotos="2" partido="PACMA" votos="1"/>
 </dataset>

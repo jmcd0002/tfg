@@ -7,4 +7,5 @@ open module persistencia {
     requires org.slf4j;
 
     exports jmcd.tfg.persistencia.dao;
+    exports jmcd.tfg.persistencia.pojo;
 }

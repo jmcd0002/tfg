@@ -16,7 +16,7 @@ public final class DBConnectionTest {
 
     private ConnectionHolder connectionHolder = () -> instance("testPersistencia").connection();
 
-    @Test
+//    @Test
     @DataSet(value = "datasets/xml/data.xml")
     public void cleanDB() {
     }

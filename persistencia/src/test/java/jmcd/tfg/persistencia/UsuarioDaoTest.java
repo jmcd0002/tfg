@@ -1,11 +1,9 @@
 package jmcd.tfg.persistencia;
 
 import com.github.database.rider.core.api.connection.ConnectionHolder;
-import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.junit5.DBUnitExtension;
 import jmcd.tfg.persistencia.crud.EntityCRUD;
 import jmcd.tfg.persistencia.dao.UsuarioDAO;
-import jmcd.tfg.persistencia.dao.VotosDAO;
 import jmcd.tfg.persistencia.test.config.TestingConfig;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,63 +22,68 @@ import static com.github.database.rider.core.util.EntityManagerProvider.instance
 @ExtendWith(SpringExtension.class)
 @ExtendWith(DBUnitExtension.class)
 @ContextConfiguration(classes = TestingConfig.class, loader = AnnotationConfigContextLoader.class)
-public class DaoTest {
+public class UsuarioDaoTest {
 
-    private static final Logger LOG= LoggerFactory.getLogger(DaoTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UsuarioDaoTest.class);
 
-    private final String josema = "Josema";
-    private final String clave = "cucu";
+    private final String usuarioCrear = "usuarioCrear";
+    private final String claveCrear = "12345";
+
+    private final String usuarioModificaciones = "usuarioModificaciones";
+    private final String claveModificaciones = "1234";
 
     private ConnectionHolder connectionHolder = () -> instance("testPersistencia").connection();
 
     @Autowired
     private UsuarioDAO usuarioDAO;
 
-    @Autowired
-    private VotosDAO votosDAO;
-
     @BeforeAll
     public static void init() {
-        LOG.info("Iniciando los tests de las clases DAO");
+        LOG.info("Iniciando los tests de la clase UsuarioDAO");
         EntityCRUD.setPersistencia("testPersistencia");
         EntityCRUD.initPersistencia();
     }
 
     @AfterAll
-    public static void close(){
+    public static void close() {
         LOG.info("Se acabaron los tests de las clases DAO");
         EntityCRUD.closePersistencia();
     }
 
     @BeforeEach
     public void initTest() {
-//        EntityCRUD.initPersistencia();
+        usuarioDAO.crearUsuario(usuarioModificaciones, claveModificaciones);
     }
 
     @AfterEach
     public void closeTest() {
- //       EntityCRUD.closePersistencia();
+        usuarioDAO.borrarUsuario(usuarioModificaciones);
     }
 
     @Test
     public void crearUsuario() {
         LOG.info("Comprobando la funcion UsuarioDAO#crearUsuario");
-        usuarioDAO.crearUsuario(josema, clave);
-        Assertions.assertTrue(usuarioDAO.existe(josema, clave));
-    }
-
-  //  @Test
-    @DataSet(value = "datasets/xml/unusuario.xml")
-    public void existeUsuario() {
-        LOG.info("Comprobando la funcion UsuarioDAO#existe");
-        Assertions.assertTrue(usuarioDAO.existe(josema, clave));
+        usuarioDAO.crearUsuario(usuarioCrear, claveCrear);
+        Assertions.assertTrue(usuarioDAO.existe(usuarioCrear, claveCrear));
     }
 
     @Test
-    @DataSet(value = "datasets/xml/unusuario.xml")
+    public void existeUsuario() {
+        LOG.info("Comprobando la funcion UsuarioDAO#existe");
+        Assertions.assertTrue(usuarioDAO.existe(usuarioModificaciones, claveModificaciones));
+    }
+
+    @Test
+    public void cambiarClave() {
+        LOG.info("Comprobando la funcion UsuarioDAO#cambiarClave");
+        usuarioDAO.cambiarClave(usuarioModificaciones, claveCrear);
+        Assertions.assertTrue(usuarioDAO.existe(usuarioModificaciones, claveCrear));
+    }
+
+    @Test
     public void borrarUsuario() {
         LOG.info("Comprobando la funcion UsuarioDAO#borrarUsuario");
-        usuarioDAO.borrarUsuario(josema);
-        Assertions.assertFalse(usuarioDAO.existe(josema,clave));
+        usuarioDAO.borrarUsuario(usuarioModificaciones);
+        Assertions.assertFalse(usuarioDAO.existe(usuarioModificaciones, claveModificaciones));
     }
 }

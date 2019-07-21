@@ -1,44 +1,87 @@
 package jmcd.tfg.persistencia.crud;
 
 import jmcd.tfg.persistencia.model.Usuario;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import java.util.List;
-import java.util.logging.Logger;
 
 @Component
 public class UsuarioCRUD extends EntityCRUD<Usuario> {
 
+    protected static final Logger LOG = LoggerFactory.getLogger(UsuarioCRUD.class);
+
     @Override
-    public Usuario getEntidadPorId(Object id) {
-        return dbConsult(entityManager -> entityManager.find(Usuario.class, id));
+    public void create(Usuario elemento) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            em.persist(elemento);
+            LOG.info("Creado usuario " + elemento.getNombre() + " con clave " + elemento.getClave());
+            tx.commit();
+        } catch (Exception e) {
+            LOG.error("Error al crear usuario: " + e.getMessage());
+            tx.rollback();
+        } finally {
+            em.close();
+        }
     }
 
     @Override
-    public void borrarEntidad(Object id) {
-        borrado.accept(id);
-    }
-
-    @Override
-    public List<Usuario> executeSelectSQL(String conditions, String name) {
-        return dbConsult(entityManager -> entityManager.createQuery("Select " + name + " from Usuario " + name + " where " + conditions).getResultList());
+    public Usuario getEntidadPorId(Object idUsuario) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            Usuario usuario = em.find(Usuario.class, idUsuario);
+            LOG.info("Encontrado usuario " + usuario.getNombre() + " con clave " + usuario.getClave());
+            return usuario;
+        } catch (Exception e) {
+            LOG.error("Error al buscar usuario: " + e.getMessage());
+        } finally {
+            em.close();
+        }
+        return null;
     }
 
     @Override
     public boolean update(Usuario elemento) {
-        Usuario original = getEntidadPorId(elemento.getNombre());
-        if (!original.getClave().equals(elemento.getClave())) {
-            dbTransactionalAction(((entityManager, o) -> original.setClave(elemento.getClave())), null);
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            Usuario usuario = em.find(Usuario.class, elemento.getNombre());
+            tx.begin();
+            usuario.setClave(elemento.getClave());
+            tx.commit();
+            LOG.info("Usuario actualizado " + elemento.getNombre() + " con clave " + elemento.getClave());
             return true;
+        } catch (Exception e) {
+            LOG.error("Error al actualizar usuario: " + e.getMessage());
+            tx.rollback();
+            return false;
+        } finally {
+            em.close();
         }
-        return false;
     }
 
     @Override
-    public void create(Usuario elemento) {
-        Logger.getAnonymousLogger().info("Persisting " + elemento.getNombre() + " con clave " + elemento.getClave());
-        persist.accept(elemento);
-        Logger.getAnonymousLogger().info("Persisted " + elemento.getNombre() + " con clave " + elemento.getClave());
+    public void borrarEntidad(Object id) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            Usuario usuario = em.find(Usuario.class,id);
+            tx.begin();
+            em.remove(usuario);
+            LOG.info("Borrado usuario  " + usuario.getNombre() + " con clave " + usuario.getClave());
+            tx.commit();
+        } catch (Exception e) {
+            LOG.error("Error al borrar usuario: " + e.getMessage());
+            tx.rollback();
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -49,5 +92,10 @@ public class UsuarioCRUD extends EntityCRUD<Usuario> {
             create(elemento);
             return false;
         }
+    }
+
+    @Override
+    public List<Usuario> executeSelectSQL(String conditions, String alias) {
+        return dbConsult(entityManager -> entityManager.createQuery("Select " + alias + " from Usuario " + alias + " where " + conditions).getResultList());
     }
 }

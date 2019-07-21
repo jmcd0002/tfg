@@ -1,34 +1,45 @@
 package jmcd.tfg.persistencia.test.config;
 
 import jmcd.tfg.persistencia.crud.UsuarioCRUD;
-import jmcd.tfg.persistencia.crud.VotosCRUD;
+import jmcd.tfg.persistencia.crud.VotacionCRUD;
 import jmcd.tfg.persistencia.dao.UsuarioDAO;
-import jmcd.tfg.persistencia.dao.VotosDAO;
+import jmcd.tfg.persistencia.dao.VotacionDAO;
+import jmcd.tfg.persistencia.utils.UsuarioPopulate;
+import jmcd.tfg.persistencia.utils.VotacionPopulate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.logging.Logger;
 
 @Configuration
 public class TestingConfig {
 
     @Bean
-    public UsuarioDAO usuarioDAO(){
-        return new UsuarioDAO();
+    public UsuarioDAO usuarioDAO() {
+        return new UsuarioDAO(usuarioPopulate(),usuarioCRUD());
     }
 
     @Bean
-    public UsuarioCRUD usuarioCRUD(){
+    public UsuarioCRUD usuarioCRUD() {
         return new UsuarioCRUD();
     }
 
     @Bean
-    public VotosDAO votosDAO(){
-        return new VotosDAO();
+    public VotacionDAO votacionDAO() {
+        return new VotacionDAO(votacionCRUD(),usuarioCRUD(),votacionPopulate());
     }
 
     @Bean
-    public VotosCRUD votosCRUD(){
-        return new VotosCRUD();
+    public VotacionCRUD votacionCRUD() {
+        return new VotacionCRUD();
     }
+
+    @Bean
+    public UsuarioPopulate usuarioPopulate() {
+        return new UsuarioPopulate();
+    }
+
+    @Bean
+    public VotacionPopulate votacionPopulate() {
+        return new VotacionPopulate(usuarioPopulate());
+    }
+
 }

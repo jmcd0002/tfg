@@ -1,12 +1,16 @@
-package jmcd.tfg.election.rest.pojo;
+package jmcd.tfg.persistencia.pojo;
 
-public class Usuario {
+
+public class UsuarioPojo {
     private String nombre;
     private String clave;
 
-    public Usuario(String nombre, String clave){
-        this.nombre=nombre;
-        this.clave=clave;
+    public UsuarioPojo() {
+    }
+
+    public UsuarioPojo(String nombre, String clave) {
+        this.nombre = nombre;
+        this.clave = clave;
     }
 
     public String getNombre() {
