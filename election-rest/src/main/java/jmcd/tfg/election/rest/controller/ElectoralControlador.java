@@ -27,7 +27,7 @@ public class ElectoralControlador {
     }
 
     @PostMapping("/metodo/{metodo}")
-    public Map<String,Integer> computarReparto(@RequestBody Map<String,Integer> votos,@RequestParam int esc, @PathVariable String metodo){
+    public Map<String,Integer> computarReparto(@RequestBody Map<String,Long> votos,@RequestParam int esc, @PathVariable String metodo){
         return metodosServicio.computarSolucion(votos,esc,metodo);
     }
 

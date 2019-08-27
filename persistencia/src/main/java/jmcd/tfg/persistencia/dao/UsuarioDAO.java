@@ -80,6 +80,7 @@ public class UsuarioDAO {
      */
     public UsuarioPojo getUsuario(String nombre) {
         Usuario usuario = usuarioCRUD.getEntidadPorId(nombre);
+        LOG.info("Usuario es null: " + (usuario==null));
         if (usuario != null) {
             LOG.info("Obteniendo usuario: " + usuario.getNombre() + " con clave: " + usuario.getClave());
         }

@@ -1,9 +1,11 @@
 package jmcd.tfg.election.rest.servicelayer;
 
-import jmcd.elections.systems.div.Divisors;
-import jmcd.elections.systems.quo.Quotas;
+import com.dan323.elections.systems.div.Divisors;
+import com.dan323.elections.systems.quo.Quotas;
+
 import jmcd.tfg.election.rest.metodos.Metodo;
 import jmcd.tfg.election.rest.metodos.MetodoTipo;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +28,7 @@ public class MetodosServicio {
                 .collect(Collectors.toList());
     }
 
-    public Map<String,Integer> computarSolucion(Map<String,Integer> votos, int esc, String metodo){
+    public Map<String,Integer> computarSolucion(Map<String,Long> votos, int esc, String metodo){
         Map<String,Integer> solution=new HashMap<>();
         try{
             solution=computeSolution(votos,esc,metodo);
@@ -40,7 +42,7 @@ public class MetodosServicio {
         return solution;
     }
 
-    private Map<String, Integer> computeSolution(Map<String, Integer> votos, int esc, String metodo) throws NoSuchMethodException{
+    private Map<String, Integer> computeSolution(Map<String, Long> votos, int esc, String metodo) throws NoSuchMethodException{
         Optional<Metodo> met=Arrays.stream(Metodo.values())
                 .filter(m->m.getNombre().equals(metodo))
                 .findFirst();

@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 @Repository
 public class VotacionDAO {
 
-    public VotacionDAO(VotacionCRUD votacionCRUD,UsuarioCRUD usuarioCRUD,VotacionPopulate votacionPopulate){
-        this.votacionPopulate=votacionPopulate;
-        this.votacionCRUD=votacionCRUD;
-        this.usuarioCRUD=usuarioCRUD;
+    public VotacionDAO(VotacionCRUD votacionCRUD, UsuarioCRUD usuarioCRUD, VotacionPopulate votacionPopulate) {
+        this.votacionPopulate = votacionPopulate;
+        this.votacionCRUD = votacionCRUD;
+        this.usuarioCRUD = usuarioCRUD;
     }
 
     private VotacionCRUD votacionCRUD;
@@ -46,10 +46,26 @@ public class VotacionDAO {
         nuevo.setUsuario(usuarioCRUD.getEntidadPorId(usuario));
         nuevo.setMapPartidosVotos(new HashMap<>());
         votacionCRUD.create(nuevo);
-        String mensaje= String.format("Creada Votacion: %s, %s, %s", nuevo.getIdVotacion(), nuevo.getNombreVotacion(), nuevo.getUsuario());
+        String mensaje = String.format("Creada Votacion: %s, %s, %s", nuevo.getIdVotacion(), nuevo.getNombreVotacion(), nuevo.getUsuario());
         LOG.info(mensaje);
         return votacionPopulate.populate(nuevo);
     }
+
+//    /**
+//     * Metodo que modifica una votacion de un usuario
+//     *
+//     * @param idVotacion id de la votacion
+//     * @return
+//     */
+//    public VotacionPojo modificarVotacion(int idVotacion, String nombreVotacion) {
+//        Votacion votacion = votacionCRUD.getEntidadPorId(idVotacion);
+//        if (!nombreVotacion.equals(votacion.getNombreVotacion())) {
+//            votacion.setNombreVotacion(nombreVotacion);
+//        }
+//        votacionCRUD.update(votacion);
+//        LOG.info("modificado nombre votacion: " + votacion.getNombreVotacion() + " con: " + nombreVotacion);
+//        return votacionPopulate.populate(votacion);
+//    }
 
     /**
      * Metodo que obtiene todas las votaciones que tiene un usuario
@@ -111,7 +127,7 @@ public class VotacionDAO {
      * @return mapa de votos de la votacion
      */
     public Map<String, Integer> getPartidosVotos(int idVotacion) {
-        String mensaje=String.format("Obteniendo todos los partidos de la votacion con id: %s",idVotacion);
+        String mensaje = String.format("Obteniendo todos los partidos de la votacion con id: %s", idVotacion);
         LOG.info(mensaje);
         return getVotacion(idVotacion).getMapPartidosVotos();
     }

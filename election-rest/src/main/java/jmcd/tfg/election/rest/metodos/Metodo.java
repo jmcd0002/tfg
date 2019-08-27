@@ -1,10 +1,10 @@
 package jmcd.tfg.election.rest.metodos;
 
-import jmcd.elections.systems.div.Divisor;
-import jmcd.elections.systems.div.Divisors;
-import jmcd.elections.systems.quo.Quota;
-import jmcd.elections.systems.quo.Quotas;
-import jmcd.elections.systems.quo.Remainder;
+import com.dan323.elections.systems.div.Divisor;
+import com.dan323.elections.systems.div.Divisors;
+import com.dan323.elections.systems.quo.Quota;
+import com.dan323.elections.systems.quo.Quotas;
+import com.dan323.elections.systems.quo.Remainder;
 
 /**
  * Classe que contiene los métodos disponibles en nuestro sistema.
@@ -23,7 +23,7 @@ public enum Metodo {
     private Quota quot;
     private Remainder rem;
 
-    Metodo(MetodoTipo tip,String nom,Divisor div,Quota<String> quot,Remainder rem){
+    Metodo(MetodoTipo tip,String nom,Divisor div,Quota<String,Long> quot,Remainder rem){
         this.tipo=tip;
         this.nombre=nom;
         this.div=div;

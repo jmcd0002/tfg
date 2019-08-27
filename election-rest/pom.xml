@@ -46,9 +46,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>jmcd.elections</groupId>
+            <groupId>com.dan323.elections</groupId>
             <artifactId>elections</artifactId>
-            <version>3.0</version>
+            <version>3.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
